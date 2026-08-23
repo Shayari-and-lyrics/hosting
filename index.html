@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hosting List - Secure Portal Login</title>
+  
+  <!-- Google Fonts: Inter & Hind Siliguri for Bengali -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Firebase App & Services (Compat SDK for single-file browser runtime) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 10% 20%, #0d1527 0%, #070a12 90%);
+      --card-bg: rgba(18, 26, 46, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent: #06b6d4;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --input-bg: rgba(10, 15, 29, 0.8);
+      --input-border: rgba(255, 255, 255, 0.12);
+      --input-focus: #6366f1;
+      --error-bg: rgba(239, 68, 68, 0.15);
+      --error-border: rgba(239, 68, 68, 0.4);
+      --error-text: #fca5a5;
+      --success-bg: rgba(34, 197, 94, 0.15);
+      --success-border: rgba(34, 197, 94, 0.4);
+      --success-text: #86efac;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--text-main);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient background glowing orbs */
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .glow-orb-1 {
+      width: 350px;
+      height: 350px;
+      background: rgba(79, 70, 229, 0.25);
+      top: 10%;
+      left: 15%;
+    }
+    .glow-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: rgba(6, 182, 212, 0.2);
+      bottom: 10%;
+      right: 15%;
+    }
+
+    .login-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6),
+                  0 0 0 1px rgba(255, 255, 255, 0.05);
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .brand-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .brand-icon {
+      width: 58px;
+      height: 58px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #ffffff;
+      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
+      margin-bottom: 16px;
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #ffffff;
+    }
+
+    .brand-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .bilingual-sub {
+      display: block;
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    /* Notification/Alert Box */
+    .alert-box {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.86rem;
+      line-height: 1.4;
+      margin-bottom: 22px;
+      border: 1px solid transparent;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-box.error {
+      background: var(--error-bg);
+      border-color: var(--error-border);
+      color: var(--error-text);
+    }
+
+    .alert-box.success {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: var(--success-text);
+    }
+
+    .alert-content {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .alert-content i {
+      margin-top: 2px;
+      font-size: 1.05rem;
+    }
+
+    .alert-text-en {
+      font-weight: 500;
+      display: block;
+    }
+
+    .alert-text-bn {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+
+    .form-label .label-bn {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper .input-icon {
+      position: absolute;
+      left: 16px;
+      color: var(--text-muted);
+      font-size: 1rem;
+      transition: color 0.2s ease;
+      pointer-events: none;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 12px;
+      padding: 13px 44px 13px 44px;
+      font-size: 0.94rem;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .form-control::placeholder {
+      color: #475569;
+      font-size: 0.88rem;
+    }
+
+    .form-control:focus {
+      border-color: var(--input-focus);
+      background: rgba(15, 23, 42, 0.95);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .form-control:focus ~ .input-icon {
+      color: var(--input-focus);
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      font-size: 0.95rem;
+      transition: color 0.2s ease;
+    }
+
+    .toggle-password:hover {
+      color: var(--text-main);
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      width: 100%;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -5px rgba(79, 70, 229, 0.55);
+    }
+
+    .btn-submit:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 26px;
+      font-size: 0.78rem;
+      color: #64748b;
+      line-height: 1.5;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient glowing spheres -->
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+
+  <div class="login-container">
+    <div class="brand-header">
+      <div class="brand-icon">
+        <i class="fa-solid fa-server"></i>
+      </div>
+      <h1 class="brand-title">Hosting List Portal</h1>
+      <p class="brand-subtitle">Enter your credentials to access your servers</p>
+      <span class="bilingual-sub">আপনার সার্ভার অ্যাক্সেস করতে লগইন করুন</span>
+    </div>
+
+    <!-- Bilingual Alert Box -->
+    <div id="alertBox" class="alert-box" role="alert">
+      <div class="alert-content">
+        <i id="alertIcon" class="fa-solid fa-circle-exclamation"></i>
+        <div>
+          <span id="alertMsgEn" class="alert-text-en"></span>
+          <span id="alertMsgBn" class="alert-text-bn"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" autocomplete="off">
+      <!-- Username Field -->
+      <div class="form-group">
+        <label class="form-label" for="username">
+          <span>Username / Email</span>
+          <span class="label-bn">ইউজারনেম অথবা ইমেইল</span>
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="text" 
+            id="username" 
+            class="form-control" 
+            placeholder="e.g. hostuser or name@example.com" 
+            required 
+          />
+          <i class="fa-regular fa-user input-icon"></i>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label class="form-label" for="password">
+          <span>Password</span>
+          <span class="label-bn">পাসওয়ার্ড</span>
+        </label>
+        <div class="input-wrapper">
+          <input 
+            type="password" 
+            id="password" 
+            class="form-control" 
+            placeholder="••••••••" 
+            required 
+          />
+          <i class="fa-solid fa-lock input-icon"></i>
+          <button type="button" id="togglePasswordBtn" class="toggle-password" title="Show / Hide Password">
+            <i class="fa-regular fa-eye" id="toggleIcon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" id="submitBtn" class="btn-submit">
+        <div class="spinner" id="btnSpinner"></div>
+        <span id="btnText">Log In / লগইন করুন</span>
+      </button>
+    </form>
+
+    <div class="footer-note">
+      <p><i class="fa-solid fa-shield-halved"></i> Authorized Access Only</p>
+      <p>নিবন্ধন শুধুমাত্র অ্যাডমিনের মাধ্যমে পরিচালিত হয়</p>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. FIREBASE CONFIGURATION
+    // ==========================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjh-etprmOrbu7UMYNXXHdNXgiVPCxywY",
+      authDomain: "alifi-1e15c.firebaseapp.com",
+      databaseURL: "https://alifi-1e15c-default-rtdb.firebaseio.com",
+      projectId: "alifi-1e15c",
+      storageBucket: "alifi-1e15c.firebasestorage.app",
+      messagingSenderId: "928673744418",
+      appId: "1:928673744418:web:997a8db27cae1fa15c6c7b"
+    };
+
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // Configure Persistent Auth State in Local Storage
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    // ==========================================
+    // 2. DOM ELEMENTS
+    // ==========================================
+    const loginForm = document.getElementById('loginForm');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const btnText = document.getElementById('btnText');
+    const alertBox = document.getElementById('alertBox');
+    const alertIcon = document.getElementById('alertIcon');
+    const alertMsgEn = document.getElementById('alertMsgEn');
+    const alertMsgBn = document.getElementById('alertMsgBn');
+    const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    const toggleIcon = document.getElementById('toggleIcon');
+
+    // ==========================================
+    // 3. UI HELPER FUNCTIONS
+    // ==========================================
+    function showAlert(type, msgEn, msgBn) {
+      alertBox.className = `alert-box ${type}`;
+      alertMsgEn.textContent = msgEn;
+      alertMsgBn.textContent = msgBn;
+
+      if (type === 'error') {
+        alertIcon.className = 'fa-solid fa-triangle-exclamation';
+      } else {
+        alertIcon.className = 'fa-solid fa-circle-check';
+      }
+
+      alertBox.style.display = 'block';
+    }
+
+    function hideAlert() {
+      alertBox.style.display = 'none';
+    }
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        submitBtn.disabled = true;
+        btnSpinner.style.display = 'inline-block';
+        btnText.textContent = 'Verifying... / যাচাই করা হচ্ছে...';
+      } else {
+        submitBtn.disabled = false;
+        btnSpinner.style.display = 'none';
+        btnText.textContent = 'Log In / লগইন করুন';
+      }
+    }
+
+    // Toggle Password Visibility
+    togglePasswordBtn.addEventListener('click', () => {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      if (type === 'text') {
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    });
+
+    // ==========================================
+    // 4. USERNAME TO EMAIL RESOLVER
+    // ==========================================
+    async function resolveEmail(userInput) {
+      const cleaned = userInput.trim();
+      
+      // If the user entered an email address format
+      if (cleaned.includes('@')) {
+        return cleaned;
+      }
+
+      // Check database to find if this username is mapped to an email
+      try {
+        const snapshot = await db.ref('users')
+          .orderByChild('username')
+          .equalTo(cleaned)
+          .once('value');
+
+        if (snapshot.exists()) {
+          const users = snapshot.val();
+          const firstKey = Object.keys(users)[0];
+          if (users[firstKey].email) {
+            return users[firstKey].email;
+          }
+        }
+      } catch (err) {
+        console.warn('Realtime Database username index lookup failed:', err);
+      }
+
+      // Fallback domain standard for usernames created without explicit emails
+      return `${cleaned.toLowerCase()}@hostinglist.local`;
+    }
+
+    // ==========================================
+    // 5. LOGIN PROCESS & VALIDATION
+    // ==========================================
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlert();
+
+      const usernameVal = usernameInput.value.trim();
+      const passwordVal = passwordInput.value;
+
+      // Validation
+      if (!usernameVal || !passwordVal) {
+        showAlert(
+          'error',
+          'Please enter both username and password.',
+          'অনুগ্রহ করে ইউজারনেম এবং পাসওয়ার্ড পূরণ করুন।'
+        );
+        return;
+      }
+
+      if (passwordVal.length < 6) {
+        showAlert(
+          'error',
+          'Password must be at least 6 characters long.',
+          'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।'
+        );
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        // Resolve username to corresponding email address
+        const email = await resolveEmail(usernameVal);
+
+        // 1. Authenticate with Firebase Authentication
+        const userCredential = await auth.signInWithEmailAndPassword(email, passwordVal);
+        const user = userCredential.user;
+
+        // 2. Fetch User Profile & Status from Realtime Database
+        const userRef = db.ref(`users/${user.uid}`);
+        const snapshot = await userRef.once('value');
+
+        if (!snapshot.exists()) {
+          // If no user record exists in RTDB, reject and sign out
+          await auth.signOut();
+          setLoading(false);
+          showAlert(
+            'error',
+            'Account profile not found. Please contact Administrator.',
+            'আপনার একাউন্ট তথ্য পাওয়া যায়নি। অ্যাডমিনের সাথে যোগাযোগ করুন।'
+          );
+          return;
+        }
+
+        const userData = snapshot.val();
+
+        // 3. Verify Account Status (Must be active, not blocked/deleted)
+        const isBlocked = userData.status === 'blocked' || 
+                          userData.status === 'deleted' || 
+                          userData.status === 'inactive' || 
+                          userData.isBlocked === true || 
+                          userData.isActive === false;
+
+        if (isBlocked) {
+          await auth.signOut();
+          sessionStorage.clear();
+          localStorage.removeItem('hosting_user_session');
+          setLoading(false);
+          showAlert(
+            'error',
+            'Your account is inactive or blocked. Contact Administrator.',
+            'আপনার একাউন্টটি ব্লক বা নিষ্ক্রিয় রয়েছে। অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন।'
+          );
+          return;
+        }
+
+        // 4. Store Session Details securely in Session Storage
+        sessionStorage.setItem('hosting_user_uid', user.uid);
+        sessionStorage.setItem('hosting_user_data', JSON.stringify({
+          uid: user.uid,
+          username: userData.username || usernameVal,
+          email: user.email,
+          role: userData.role || 'user',
+          status: userData.status || 'active'
+        }));
+
+        // 5. Success Notification & Redirect
+        showAlert(
+          'success',
+          'Login successful! Redirecting to dashboard...',
+          'সফলভাবে লগইন হয়েছে! ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে...'
+        );
+
+        setTimeout(() => {
+          window.location.href = 'home.html';
+        }, 1200);
+
+      } catch (error) {
+        setLoading(false);
+        console.error("Login Error: ", error);
+
+        let errEn = "Authentication failed. Please check your credentials.";
+        let errBn = "লগইন ব্যর্থ হয়েছে। আপনার ইউজারনেম ও পাসওয়ার্ড যাচাই করুন।";
+
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+          errEn = "Invalid username or password.";
+          errBn = "ইউজারনেম অথবা পাসওয়ার্ড ভুল দিয়েছেন।";
+        } else if (error.code === 'auth/too-many-requests') {
+          errEn = "Too many failed attempts. Please try again later.";
+          errBn = "অতিরিক্ত ভুল চেষ্টার কারণে একাউন্ট সাময়িক স্থগিত। কিছুক্ষণ পর চেষ্টা করুন।";
+        } else if (error.code === 'auth/network-request-failed') {
+          errEn = "Network connection failed. Please check your internet.";
+          errBn = "ইন্টারনেট সংযোগ বিচ্ছিন্ন। দয়া করে নেটওয়ার্ক চেক করুন।";
+        }
+
+        showAlert('error', errEn, errBn);
+      }
+    });
+
+    // ==========================================
+    // 6. PRE-CHECK SESSION (Auto redirect if active)
+    // ==========================================
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const snapshot = await db.ref(`users/${user.uid}`).once('value');
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            if (data.status === 'active' || (!data.status && !data.isBlocked)) {
+              // User is already authenticated and active
+              // Redirect directly to home.html
+              window.location.href = 'home.html';
+            }
+          }
+        } catch (e) {
+          console.error("Session verification error:", e);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
