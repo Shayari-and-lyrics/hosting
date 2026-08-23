@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hosting List - User Dashboard</title>
+
+  <!-- Google Fonts: Inter & Hind Siliguri for Bengali support -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Firebase App & Services (Compat SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #080c16;
+      --card-bg: rgba(17, 24, 43, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(26, 36, 64, 0.85);
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent: #06b6d4;
+      --accent-glow: rgba(6, 182, 212, 0.25);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --badge-bg: rgba(79, 70, 229, 0.15);
+      --badge-border: rgba(99, 102, 241, 0.3);
+      --badge-text: #a5b4fc;
+      --danger: #ef4444;
+      --success: #10b981;
+      --notice-bg: rgba(245, 158, 11, 0.1);
+      --notice-border: rgba(245, 158, 11, 0.35);
+      --notice-text: #fcd34d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
+      min-height: 100vh;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Auth Loader Overlay */
+    #authOverlay {
+      position: fixed;
+      inset: 0;
+      background: #070a13;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .loader-ring {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(11, 17, 32, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 24px;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: #ffffff;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 14px var(--accent-glow);
+    }
+
+    .brand-text h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .user-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 6px 14px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+
+    .user-pill i {
+      color: var(--accent);
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      padding: 7px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.25);
+      color: #ffffff;
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    /* Main Container */
+    .main-content {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 60px 20px;
+      flex: 1;
+    }
+
+    /* Top Notice Banner */
+    #noticeSection {
+      display: none;
+      margin-bottom: 24px;
+    }
+
+    .notice-card {
+      background: var(--notice-bg);
+      border: 1px solid var(--notice-border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      position: relative;
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .notice-icon {
+      font-size: 1.3rem;
+      color: var(--notice-text);
+      margin-top: 2px;
+    }
+
+    .notice-body h4 {
+      font-size: 0.95rem;
+      color: var(--notice-text);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .notice-body p {
+      font-size: 0.88rem;
+      color: #fef08a;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    /* Controls Bar: Search & Category Tabs */
+    .controls-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 14px;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(8, 12, 22, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 11px 40px 11px 40px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      display: none;
+    }
+
+    .search-clear:hover {
+      color: #fff;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .tab-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+    }
+
+    /* Content Cards Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(16px);
+      border-radius: 16px;
+      padding: 22px;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInCard 0.4s ease-out;
+    }
+
+    @keyframes fadeInCard {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.16);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      gap: 12px;
+    }
+
+    .card-type-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--badge-text);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .card-date {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .url-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(8, 12, 22, 0.85);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      margin: 10px 0 14px 0;
+      font-size: 0.83rem;
+      color: var(--accent);
+      gap: 8px;
+    }
+
+    .url-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-decoration: none;
+      color: var(--accent);
+      flex: 1;
+    }
+
+    .url-text:hover {
+      text-decoration: underline;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 16px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Section for Caption, Song & Comments inside Card */
+    .sub-section {
+      background: rgba(255, 255, 255, 0.025);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-size: 0.84rem;
+    }
+
+    .sub-section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--badge-text);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sub-section-content {
+      color: #cbd5e1;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    /* Audio Player Widget */
+    .audio-player-wrapper {
+      margin: 10px 0 14px 0;
+    }
+
+    .audio-player-wrapper audio {
+      width: 100%;
+      height: 38px;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    /* Card Action Footer */
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .btn-action:hover {
+      background: rgba(79, 70, 229, 0.2);
+      border-color: rgba(99, 102, 241, 0.4);
+      color: #fff;
+    }
+
+    .btn-visit {
+      background: linear-gradient(135deg, var(--primary), #3b82f6);
+      border: none;
+      color: #fff;
+    }
+
+    .btn-visit:hover {
+      background: linear-gradient(135deg, var(--primary-hover), #2563eb);
+    }
+
+    /* Empty State */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 70px 20px;
+      background: var(--card-bg);
+      border: 1px dashed var(--card-border);
+      border-radius: 20px;
+      display: none;
+    }
+
+    .empty-icon {
+      font-size: 3rem;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+    }
+
+    .empty-state h3 {
+      font-size: 1.2rem;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+
+    .empty-state p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    /* Live Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1e1b4b;
+      border: 1px solid #6366f1;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast i {
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 680px) {
+      .navbar {
+        padding: 12px 16px;
+      }
+      .nav-container {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      .brand-text span {
+        display: none;
+      }
+      .user-pill span {
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .controls-panel {
+        padding: 14px;
+      }
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fullscreen Initial Authentication Checker -->
+  <div id="authOverlay">
+    <div class="loader-ring"></div>
+    <p style="color: #94a3b8; font-size: 0.9rem;">Authenticating portal... / সংযোগ স্থাপন হচ্ছে...</p>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="home.html" class="brand">
+        <div class="brand-logo">
+          <i class="fa-solid fa-server"></i>
+        </div>
+        <div class="brand-text">
+          <h2>Hosting List</h2>
+          <span>Live User Portal / ইউজার ড্যাশবোর্ড</span>
+        </div>
+      </a>
+
+      <div class="user-actions">
+        <div class="user-pill" title="Logged in user">
+          <i class="fa-regular fa-circle-user"></i>
+          <span id="displayUsername">User</span>
+        </div>
+        <button id="logoutBtn" class="btn-logout" title="Logout from Portal">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout / লগআউট</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content Layout -->
+  <main class="main-content">
+    
+    <!-- Urgent Announcement / Notice Banner -->
+    <section id="noticeSection">
+      <!-- Notices will render here dynamically -->
+    </section>
+
+    <!-- Controls: Live Search & Category Filter -->
+    <section class="controls-panel">
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          class="search-input" 
+          placeholder="Search hosting, songs, captions... / তথ্য অনুসন্ধান করুন..." 
+        />
+        <button id="clearSearch" class="search-clear" title="Clear Search">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="filter-tabs" id="filterTabs">
+        <button class="tab-btn active" data-filter="all">
+          <i class="fa-solid fa-border-all"></i> All / সব (<span id="countAll">0</span>)
+        </button>
+        <button class="tab-btn" data-filter="hosting">
+          <i class="fa-solid fa-server"></i> Hosting (<span id="countHosting">0</span>)
+        </button>
+        <button class="tab-btn" data-filter="caption">
+          <i class="fa-solid fa-quote-left"></i> Captions (<span id="countCaption">0</span>)
+        </button>
+        <button class="tab-btn" data-filter="song">
+          <i class="fa-solid fa-music"></i> Songs (<span id="countSong">0</span>)
+        </button>
+      </div>
+    </section>
+
+    <!-- Content Feed Grid -->
+    <section class="content-grid" id="contentGrid">
+      <!-- Dynamic Content Cards Will Be Injected Here via Firebase -->
+    </section>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state">
+      <div class="empty-icon">
+        <i class="fa-regular fa-folder-open"></i>
+      </div>
+      <h3 id="emptyTitle">No Content Published Yet</h3>
+      <p id="emptyDesc">Currently there are no active items available. Please check back later. / এই মুহূর্তে কোনো তথ্য প্রকাশিত নেই।</p>
+    </div>
+  </main>
+
+  <!-- Toast Notification Pop-up -->
+  <div id="toast" class="toast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastMsg">Copied to clipboard! / ক্লিপবোর্ডে কপি করা হয়েছে!</span>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. FIREBASE INITIALIZATION
+    // ==========================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjh-etprmOrbu7UMYNXXHdNXgiVPCxywY",
+      authDomain: "alifi-1e15c.firebaseapp.com",
+      databaseURL: "https://alifi-1e15c-default-rtdb.firebaseio.com",
+      projectId: "alifi-1e15c",
+      storageBucket: "alifi-1e15c.firebasestorage.app",
+      messagingSenderId: "928673744418",
+      appId: "1:928673744418:web:997a8db27cae1fa15c6c7b"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // DOM Elements
+    const authOverlay = document.getElementById('authOverlay');
+    const displayUsername = document.getElementById('displayUsername');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const contentGrid = document.getElementById('contentGrid');
+    const noticeSection = document.getElementById('noticeSection');
+    const emptyState = document.getElementById('emptyState');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const filterTabs = document.getElementById('filterTabs');
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+
+    // Counts DOM
+    const countAll = document.getElementById('countAll');
+    const countHosting = document.getElementById('countHosting');
+    const countCaption = document.getElementById('countCaption');
+    const countSong = document.getElementById('countSong');
+
+    // State Variables
+    let allItems = [];
+    let currentFilter = 'all';
+    let currentSearch = '';
+
+    // ==========================================
+    // 2. AUTHENTICATION & ACCESS CONTROL
+    // ==========================================
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        // User not authenticated -> redirect to index.html
+        window.location.href = 'index.html';
+        return;
+      }
+
+      try {
+        // Verify User Account Status in Realtime Database
+        const snapshot = await db.ref(`users/${user.uid}`).once('value');
+        if (!snapshot.exists()) {
+          await auth.signOut();
+          window.location.href = 'index.html';
+          return;
+        }
+
+        const userData = snapshot.val();
+
+        // Check if user is blocked, inactive, or marked deleted
+        if (userData.status === 'blocked' || userData.status === 'deleted' || userData.status === 'inactive' || userData.isBlocked === true) {
+          await auth.signOut();
+          sessionStorage.clear();
+          window.location.href = 'index.html';
+          return;
+        }
+
+        // Set User Profile UI
+        displayUsername.textContent = userData.username || user.displayName || user.email.split('@')[0];
+
+        // Hide Loader overlay
+        authOverlay.style.display = 'none';
+
+        // Start Live Realtime Database Listeners
+        initializeRealtimeListeners();
+
+      } catch (err) {
+        console.error("Auth status verification error:", err);
+        authOverlay.style.display = 'none';
+      }
+    });
+
+    // Logout Handler
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await auth.signOut();
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+      } catch (e) {
+        console.error("Logout Error:", e);
+      }
+    });
+
+    // ==========================================
+    // 3. REALTIME DATABASE SYNC
+    // ==========================================
+    function initializeRealtimeListeners() {
+      // Listen to notices/announcements node
+      db.ref('notices').on('value', (snapshot) => {
+        renderNotices(snapshot.val());
+      });
+
+      // Listen to master content/hostings nodes
+      // Supporting admin-published nodes: 'hostings', 'posts', and 'contents'
+      db.ref('hostings').on('value', (snapHostings) => {
+        const hostingsData = snapHostings.val() || {};
+
+        db.ref('posts').on('value', (snapPosts) => {
+          const postsData = snapPosts.val() || {};
+
+          db.ref('contents').on('value', (snapContents) => {
+            const contentsData = snapContents.val() || {};
+
+            // Consolidate all admin-published content
+            allItems = processRawData({ ...hostingsData, ...postsData, ...contentsData });
+            renderFeed();
+          });
+        });
+      });
+    }
+
+    // Process and normalize database content
+    function processRawData(dataObj) {
+      if (!dataObj) return [];
+
+      const list = [];
+      Object.keys(dataObj).forEach(key => {
+        const item = dataObj[key];
+        if (!item || typeof item !== 'object') return;
+
+        // Skip unpublished or deleted content automatically
+        const isHidden = item.status === 'unpublished' || item.status === 'deleted' || item.status === 'inactive' || item.isPublished === false;
+        if (isHidden) return;
+
+        list.push({
+          id: key,
+          type: item.type || (item.url ? 'hosting' : item.song || item.audioUrl ? 'song' : item.caption ? 'caption' : 'general'),
+          name: item.name || item.title || item.hostingName || 'Untitled Hosting / Content',
+          url: item.url || item.hostingUrl || item.link || '',
+          details: item.details || item.desc || item.description || item.specs || '',
+          caption: item.caption || '',
+          song: item.song || item.songTitle || item.audioTitle || '',
+          audioUrl: item.audioUrl || item.musicUrl || '',
+          comment: item.comment || item.note || item.adminNote || '',
+          timestamp: item.timestamp || item.createdAt || item.date || Date.now(),
+          status: item.status || 'active'
+        });
+      });
+
+      // Sort newest first
+      return list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    }
+
+    // ==========================================
+    // 4. RENDER NOTICES / ANNOUNCEMENTS
+    // ==========================================
+    function renderNotices(noticesObj) {
+      if (!noticesObj) {
+        noticeSection.innerHTML = '';
+        noticeSection.style.display = 'none';
+        return;
+      }
+
+      let activeNotices = [];
+      Object.keys(noticesObj).forEach(id => {
+        const n = noticesObj[id];
+        if (n && n.status !== 'deleted' && n.status !== 'unpublished' && n.isActive !== false) {
+          activeNotices.push(n);
+        }
+      });
+
+      if (activeNotices.length === 0) {
+        noticeSection.innerHTML = '';
+        noticeSection.style.display = 'none';
+        return;
+      }
+
+      noticeSection.style.display = 'block';
+      noticeSection.innerHTML = activeNotices.map(n => `
+        <div class="notice-card">
+          <i class="fa-solid fa-bullhorn notice-icon"></i>
+          <div class="notice-body">
+            <h4>${escapeHTML(n.title || 'Official Announcement / বিশেষ বিজ্ঞপ্তি')}</h4>
+            <p>${escapeHTML(n.message || n.text || n.content || '')}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ==========================================
+    // 5. RENDER CONTENT FEED & CARDS
+    // ==========================================
+    function renderFeed() {
+      // 1. Calculate Counts
+      let hCount = 0, cCount = 0, sCount = 0;
+      allItems.forEach(item => {
+        if (item.type === 'hosting' || item.url) hCount++;
+        if (item.caption) cCount++;
+        if (item.song || item.audioUrl) sCount++;
+      });
+      countAll.textContent = allItems.length;
+      countHosting.textContent = hCount;
+      countCaption.textContent = cCount;
+      countSong.textContent = sCount;
+
+      // 2. Filter & Search
+      const filtered = allItems.filter(item => {
+        // Tab Filter
+        if (currentFilter === 'hosting' && !(item.type === 'hosting' || item.url)) return false;
+        if (currentFilter === 'caption' && !item.caption) return false;
+        if (currentFilter === 'song' && !(item.song || item.audioUrl)) return false;
+
+        // Search Filter
+        if (currentSearch) {
+          const q = currentSearch.toLowerCase();
+          const matches = 
+            (item.name && item.name.toLowerCase().includes(q)) ||
+            (item.url && item.url.toLowerCase().includes(q)) ||
+            (item.details && item.details.toLowerCase().includes(q)) ||
+            (item.caption && item.caption.toLowerCase().includes(q)) ||
+            (item.song && item.song.toLowerCase().includes(q)) ||
+            (item.comment && item.comment.toLowerCase().includes(q));
+          if (!matches) return false;
+        }
+
+        return true;
+      });
+
+      // 3. Render Empty State or Cards
+      if (filtered.length === 0) {
+        contentGrid.innerHTML = '';
+        emptyState.style.display = 'block';
+        if (currentSearch) {
+          document.getElementById('emptyTitle').textContent = 'No Search Results Found';
+          document.getElementById('emptyDesc').textContent = `No items matched "${currentSearch}". Try a different keyword. / কোনো ফলাফল পাওয়া যায়নি।`;
+        } else {
+          document.getElementById('emptyTitle').textContent = 'No Content Available';
+          document.getElementById('emptyDesc').textContent = 'No published items in this category yet. / এই ক্যাটাগরিতে এখনো কোনো তথ্য প্রকাশিত হয়নি।';
+        }
+        return;
+      }
+
+      emptyState.style.display = 'none';
+
+      // 4. Construct Cards HTML
+      contentGrid.innerHTML = filtered.map(item => {
+        const formattedDate = item.timestamp ? new Date(item.timestamp).toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }) : '';
+
+        return `
+          <div class="card">
+            <div>
+              <div class="card-top">
+                <span class="card-type-tag">
+                  <i class="${getTypeIcon(item.type)}"></i> ${escapeHTML(item.type)}
+                </span>
+                ${formattedDate ? `<span class="card-date"><i class="fa-regular fa-clock"></i> ${formattedDate}</span>` : ''}
+              </div>
+
+              <h3 class="card-title">${escapeHTML(item.name)}</h3>
+
+              ${item.url ? `
+                <div class="url-chip">
+                  <i class="fa-solid fa-link"></i>
+                  <a href="${formatURL(item.url)}" target="_blank" rel="noopener noreferrer" class="url-text" title="Open Link">
+                    ${escapeHTML(item.url)}
+                  </a>
+                  <button class="btn-action" style="padding: 4px 8px; flex:none;" onclick="copyText('${escapeQuotes(item.url)}', 'Hosting URL Copied / হোস্টিং লিংক কপি হয়েছে!')" title="Copy URL">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                </div>
+              ` : ''}
+
+              ${item.details ? `
+                <p class="card-desc">${escapeHTML(item.details)}</p>
+              ` : ''}
+
+              ${item.caption ? `
+                <div class="sub-section">
+                  <div class="sub-section-title">
+                    <i class="fa-solid fa-quote-left"></i> Caption / ক্যাপশন:
+                  </div>
+                  <div class="sub-section-content">${escapeHTML(item.caption)}</div>
+                </div>
+              ` : ''}
+
+              ${item.song ? `
+                <div class="sub-section">
+                  <div class="sub-section-title">
+                    <i class="fa-solid fa-music"></i> Song / অডিও ট্র্যাক:
+                  </div>
+                  <div class="sub-section-content">${escapeHTML(item.song)}</div>
+                </div>
+              ` : ''}
+
+              ${item.audioUrl ? `
+                <div class="audio-player-wrapper">
+                  <audio controls preload="none">
+                    <source src="${escapeHTML(item.audioUrl)}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                  </audio>
+                </div>
+              ` : ''}
+
+              ${item.comment ? `
+                <div class="sub-section" style="border-left-color: var(--accent);">
+                  <div class="sub-section-title" style="color: var(--accent);">
+                    <i class="fa-solid fa-comment-dots"></i> Admin Note / মন্তব্য:
+                  </div>
+                  <div class="sub-section-content">${escapeHTML(item.comment)}</div>
+                </div>
+              ` : ''}
+            </div>
+
+            <div class="card-actions">
+              ${item.url ? `
+                <a href="${formatURL(item.url)}" target="_blank" rel="noopener noreferrer" class="btn-action btn-visit">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit / ভিজিট
+                </a>
+              ` : ''}
+              
+              <button class="btn-action" onclick="copyFullInfo('${item.id}')">
+                <i class="fa-regular fa-copy"></i> Copy Info / কপি করুন
+              </button>
+
+              ${item.caption ? `
+                <button class="btn-action" onclick="copyText('${escapeQuotes(item.caption)}', 'Caption Copied / ক্যাপশন কপি হয়েছে!')">
+                  <i class="fa-solid fa-quote-right"></i> Copy Caption
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==========================================
+    // 6. UTILITY FUNCTIONS & EVENT LISTENERS
+    // ==========================================
+    function getTypeIcon(type) {
+      switch(type?.toLowerCase()) {
+        case 'hosting': return 'fa-solid fa-server';
+        case 'song': return 'fa-solid fa-music';
+        case 'caption': return 'fa-solid fa-quote-left';
+        default: return 'fa-solid fa-layer-group';
+      }
+    }
+
+    function formatURL(url) {
+      if (!url) return '#';
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        return 'https://' + url;
+      }
+      return url;
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeQuotes(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '');
+    }
+
+    // Copy to Clipboard with Toast feedback
+    window.copyText = function(text, successMsg) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(successMsg || 'Copied to clipboard! / ক্লিপবোর্ডে কপি করা হয়েছে!');
+      }).catch(err => {
+        // Fallback for non-https/older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast(successMsg || 'Copied to clipboard! / ক্লিপবোর্ডে কপি করা হয়েছে!');
+      });
+    };
+
+    // Copy complete item information
+    window.copyFullInfo = function(itemId) {
+      const item = allItems.find(i => i.id === itemId);
+      if (!item) return;
+
+      let infoParts = [];
+      if (item.name) infoParts.push(`📌 Name: ${item.name}`);
+      if (item.url) infoParts.push(`🔗 URL: ${item.url}`);
+      if (item.details) infoParts.push(`📝 Details: ${item.details}`);
+      if (item.caption) infoParts.push(`💬 Caption: ${item.caption}`);
+      if (item.song) infoParts.push(`🎵 Song: ${item.song}`);
+      if (item.comment) infoParts.push(`💡 Note: ${item.comment}`);
+
+      const fullText = infoParts.join('\n\n');
+      copyText(fullText, 'Full details copied! / সকল তথ্য কপি করা হয়েছে!');
+    };
+
+    function showToast(msg) {
+      toastMsg.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Tab Switching
+    filterTabs.addEventListener('click', (e) => {
+      const btn = e.target.closest('.tab-btn');
+      if (!btn) return;
+
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.getAttribute('data-filter');
+      renderFeed();
+    });
+
+    // Search Input Listener
+    searchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value.trim();
+      clearSearchBtn.style.display = currentSearch ? 'block' : 'none';
+      renderFeed();
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      currentSearch = '';
+      clearSearchBtn.style.display = 'none';
+      renderFeed();
+      searchInput.focus();
+    });
+  </script>
+</body>
+</html>
