@@ -1,69 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hosting List - User Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#060913" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Dashboard | SS TIME OFFICIAL</title>
 
-  <!-- Google Fonts: Inter & Hind Siliguri for Bengali support -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts: Hind Siliguri (Bengali) & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 
-  <!-- Firebase App & Services (Compat SDK) -->
+  <!-- Firebase Compat SDKs (Production) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
+    /* ==========================================================================
+       1. LUXURY MOBILE-FIRST CSS RESET & THEME
+       ========================================================================== */
     :root {
-      --bg-color: #080c16;
-      --card-bg: rgba(17, 24, 43, 0.7);
+      --bg-base: #050811;
+      --card-bg: rgba(13, 19, 36, 0.72);
       --card-border: rgba(255, 255, 255, 0.08);
-      --card-hover: rgba(26, 36, 64, 0.85);
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
+      --card-hover: rgba(20, 28, 52, 0.9);
+      --primary: #6366f1;
+      --primary-light: #818cf8;
       --accent: #06b6d4;
-      --accent-glow: rgba(6, 182, 212, 0.25);
+      --accent-glow: rgba(6, 182, 212, 0.3);
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+      --emerald: #10b981;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
-      --badge-bg: rgba(79, 70, 229, 0.15);
-      --badge-border: rgba(99, 102, 241, 0.3);
-      --badge-text: #a5b4fc;
-      --danger: #ef4444;
-      --success: #10b981;
-      --notice-bg: rgba(245, 158, 11, 0.1);
-      --notice-border: rgba(245, 158, 11, 0.35);
-      --notice-text: #fcd34d;
+      --input-bg: rgba(10, 15, 28, 0.8);
+      --font-main: 'Plus Jakarta Sans', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      font-family: var(--font-main);
     }
 
     body {
-      background-color: var(--bg-color);
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.12) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
+      background-color: var(--bg-base);
       min-height: 100vh;
       color: var(--text-main);
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
     }
 
-    /* Auth Loader Overlay */
-    #authOverlay {
+    /* Auth Gate Splash Screen */
+    #authGuard {
       position: fixed;
       inset: 0;
-      background: #070a13;
+      background: #050811;
       z-index: 99999;
       display: flex;
       flex-direction: column;
@@ -72,10 +75,10 @@
       gap: 16px;
     }
 
-    .loader-ring {
-      width: 48px;
-      height: 48px;
-      border: 3px solid rgba(255, 255, 255, 0.1);
+    .guard-spinner {
+      width: 46px;
+      height: 46px;
+      border: 3px solid rgba(255, 255, 255, 0.08);
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
@@ -85,88 +88,139 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Navbar */
-    .navbar {
+    /* Ambient Glowing Orbs */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+      opacity: 0.65;
+      pointer-events: none;
+    }
+
+    .orb-top {
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.28), transparent 70%);
+      top: -60px;
+      left: 20%;
+    }
+
+    .orb-bottom {
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.2), transparent 70%);
+      bottom: 5%;
+      right: 10%;
+    }
+
+    /* ==========================================================================
+       2. TOP APP BAR & USER PROFILE
+       ========================================================================== */
+    .top-appbar {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(11, 17, 32, 0.85);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(8, 12, 24, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--card-border);
-      padding: 14px 24px;
+      padding: max(14px, env(safe-area-inset-top)) 20px 14px 20px;
     }
 
-    .nav-container {
-      max-width: 1200px;
+    .appbar-inner {
+      max-width: 1000px;
       margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
 
-    .brand {
+    .brand-cluster {
       display: flex;
       align-items: center;
       gap: 12px;
-      text-decoration: none;
-      color: #ffffff;
     }
 
-    .brand-logo {
-      width: 40px;
-      height: 40px;
+    .brand-emblem {
+      width: 42px;
+      height: 42px;
       background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 10px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
-      box-shadow: 0 4px 14px var(--accent-glow);
+      color: #fff;
+      box-shadow: 0 4px 16px var(--accent-glow);
+      flex-shrink: 0;
     }
 
-    .brand-text h2 {
-      font-size: 1.15rem;
-      font-weight: 700;
+    .brand-meta h1 {
+      font-size: 1.1rem;
+      font-weight: 800;
       letter-spacing: -0.3px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 30%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       line-height: 1.2;
     }
 
-    .brand-text span {
-      font-size: 0.75rem;
-      color: var(--text-muted);
+    .brand-meta span {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
     }
 
-    .user-actions {
+    .user-profile-controls {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .user-pill {
+    .profile-pill {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--card-border);
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: 30px;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-main);
     }
 
-    .user-pill i {
+    .profile-pill i {
       color: var(--accent);
+      font-size: 0.9rem;
+    }
+
+    .user-name-label {
+      max-width: 110px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 600;
     }
 
     .btn-logout {
       background: rgba(239, 68, 68, 0.12);
       border: 1px solid rgba(239, 68, 68, 0.3);
       color: #fca5a5;
-      padding: 7px 16px;
+      padding: 7px 12px;
       border-radius: 10px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
@@ -178,375 +232,417 @@
     .btn-logout:hover {
       background: rgba(239, 68, 68, 0.25);
       color: #ffffff;
-      border-color: rgba(239, 68, 68, 0.5);
     }
 
-    /* Main Container */
-    .main-content {
-      max-width: 1200px;
+    /* ==========================================================================
+       3. MAIN LAYOUT & HERO WELCOME
+       ========================================================================== */
+    .dashboard-wrapper {
+      max-width: 1000px;
       width: 100%;
       margin: 0 auto;
-      padding: 24px 20px 60px 20px;
+      padding: 22px 18px 60px 18px;
       flex: 1;
-    }
-
-    /* Top Notice Banner */
-    #noticeSection {
-      display: none;
-      margin-bottom: 24px;
-    }
-
-    .notice-card {
-      background: var(--notice-bg);
-      border: 1px solid var(--notice-border);
-      border-radius: 14px;
-      padding: 16px 20px;
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
       position: relative;
-      animation: slideIn 0.4s ease;
+      z-index: 10;
+      animation: entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-10px); }
+    @keyframes entrance {
+      from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .notice-icon {
-      font-size: 1.3rem;
-      color: var(--notice-text);
-      margin-top: 2px;
-    }
-
-    .notice-body h4 {
-      font-size: 0.95rem;
-      color: var(--notice-text);
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .notice-body p {
-      font-size: 0.88rem;
-      color: #fef08a;
-      line-height: 1.4;
-      white-space: pre-wrap;
-    }
-
-    /* Controls Bar: Search & Category Tabs */
-    .controls-panel {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      padding: 18px;
+    /* Hero Greeting Card */
+    .hero-welcome {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.08));
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 22px 24px;
       margin-bottom: 24px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
       justify-content: space-between;
       align-items: center;
+      gap: 16px;
+      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
     }
 
-    .search-box {
-      flex: 1;
-      min-width: 260px;
-      position: relative;
+    .welcome-text h2 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
       display: flex;
       align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .search-box i {
+    .welcome-text p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .status-badge-active {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #6ee7b7;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-badge-active .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Search Bar */
+    .search-panel {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .search-panel i {
       position: absolute;
-      left: 14px;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
       color: var(--text-dim);
       font-size: 0.95rem;
     }
 
     .search-input {
       width: 100%;
-      background: rgba(8, 12, 22, 0.7);
+      background: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 11px 40px 11px 40px;
-      color: #fff;
-      font-size: 0.9rem;
+      border-radius: 14px;
+      padding: 13px 40px 13px 46px;
+      color: #ffffff;
+      font-size: 0.92rem;
       outline: none;
-      transition: all 0.2s;
+      transition: all 0.25s;
     }
 
     .search-input:focus {
       border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
     }
 
-    .search-clear {
+    .search-clear-btn {
       position: absolute;
-      right: 12px;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
       background: none;
       border: none;
       color: var(--text-dim);
+      font-size: 0.9rem;
       cursor: pointer;
       display: none;
     }
 
-    .search-clear:hover {
-      color: #fff;
-    }
-
-    .filter-tabs {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 2px;
-    }
-
-    .tab-btn {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 8px 16px;
-      border-radius: 10px;
-      font-size: 0.84rem;
-      font-weight: 500;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tab-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
-
-    .tab-btn.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
-    }
-
-    /* Content Cards Grid */
-    .content-grid {
+    /* ==========================================================================
+       4. FOUR MAIN NAVIGATION CARDS (APP TILES)
+       ========================================================================== */
+    .nav-tiles-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 30px;
     }
 
-    .card {
+    .nav-tile {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 18px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text-main);
       backdrop-filter: blur(16px);
-      border-radius: 16px;
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-tile:hover {
+      background: var(--card-hover);
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.5);
+    }
+
+    .nav-tile:active {
+      transform: scale(0.96);
+    }
+
+    .tile-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+    }
+
+    .tile-indigo { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+    .tile-cyan   { background: rgba(6, 182, 212, 0.15); color: #67e8f9; }
+    .tile-rose   { background: rgba(244, 63, 94, 0.15); color: #fda4af; }
+    .tile-amber  { background: rgba(245, 158, 11, 0.15); color: #fde68a; }
+
+    .nav-tile h3 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .nav-tile span {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    /* ==========================================================================
+       5. LATEST CONTENT SECTION (VERSION RULE: ONLY LATEST SHOWN)
+       ========================================================================== */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-header h3 {
+      font-size: 1.08rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ffffff;
+    }
+
+    .section-header span {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .latest-feed-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
+    .latest-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
       padding: 22px;
-      transition: all 0.25s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      transition: all 0.25s ease;
       position: relative;
       overflow: hidden;
-      animation: fadeInCard 0.4s ease-out;
+      animation: fadeIn 0.4s ease-out;
     }
 
-    @keyframes fadeInCard {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .card:hover {
-      background: var(--card-hover);
+    .latest-card:hover {
       border-color: rgba(255, 255, 255, 0.16);
-      transform: translateY(-3px);
-      box-shadow: 0 16px 30px -10px rgba(0, 0, 0, 0.5);
+      background: var(--card-hover);
     }
 
-    .card-top {
+    .card-top-bar {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 14px;
-      gap: 12px;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
     }
 
-    .card-type-tag {
+    .badge-cluster {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .type-badge {
       font-size: 0.72rem;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 4px 10px;
+      padding: 3px 9px;
       border-radius: 6px;
-      background: var(--badge-bg);
-      border: 1px solid var(--badge-border);
-      color: var(--badge-text);
       display: inline-flex;
       align-items: center;
       gap: 5px;
     }
 
-    .card-date {
-      font-size: 0.75rem;
+    .type-hosting { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35); color: #a5b4fc; }
+    .type-caption { background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.35); color: #67e8f9; }
+    .type-song    { background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.35); color: #fda4af; }
+    .type-other   { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: #fde68a; }
+
+    .version-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      font-family: 'Fira Code', monospace;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+
+    .serial-tag {
+      font-size: 0.7rem;
       color: var(--text-dim);
+      font-family: 'Fira Code', monospace;
     }
 
     .card-title {
       font-size: 1.15rem;
-      font-weight: 700;
+      font-weight: 800;
       color: #ffffff;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       line-height: 1.35;
-      word-break: break-word;
     }
 
-    .url-chip {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(8, 12, 22, 0.85);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 8px 12px;
-      margin: 10px 0 14px 0;
-      font-size: 0.83rem;
-      color: var(--accent);
-      gap: 8px;
-    }
-
-    .url-text {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      text-decoration: none;
-      color: var(--accent);
-      flex: 1;
-    }
-
-    .url-text:hover {
-      text-decoration: underline;
-    }
-
-    .card-desc {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.55;
-      margin-bottom: 16px;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    /* Section for Caption, Song & Comments inside Card */
-    .sub-section {
-      background: rgba(255, 255, 255, 0.025);
-      border-left: 3px solid var(--primary);
-      border-radius: 0 8px 8px 0;
-      padding: 10px 14px;
-      margin-bottom: 12px;
-      font-size: 0.84rem;
-    }
-
-    .sub-section-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--badge-text);
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .sub-section-content {
-      color: #cbd5e1;
-      line-height: 1.45;
-      word-break: break-word;
-    }
-
-    /* Audio Player Widget */
-    .audio-player-wrapper {
-      margin: 10px 0 14px 0;
-    }
-
-    .audio-player-wrapper audio {
-      width: 100%;
-      height: 38px;
-      border-radius: 8px;
-      outline: none;
-    }
-
-    /* Card Action Footer */
-    .card-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .btn-action {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      padding: 7px 12px;
-      border-radius: 8px;
+    .presenter-meta {
       font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: inline-flex;
+      color: var(--accent);
+      margin-bottom: 10px;
+      display: flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s;
-      flex: 1;
-      justify-content: center;
     }
 
-    .btn-action:hover {
-      background: rgba(79, 70, 229, 0.2);
-      border-color: rgba(99, 102, 241, 0.4);
-      color: #fff;
+    /* Truncated Preview Box */
+    .short-preview-box {
+      background: rgba(10, 15, 29, 0.75);
+      border-left: 3px solid var(--primary);
+      border-radius: 0 10px 10px 0;
+      padding: 12px 14px;
+      font-size: 0.86rem;
+      color: #cbd5e1;
+      line-height: 1.55;
+      margin: 10px 0 14px 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
     }
 
-    .btn-visit {
-      background: linear-gradient(135deg, var(--primary), #3b82f6);
-      border: none;
-      color: #fff;
-    }
-
-    .btn-visit:hover {
-      background: linear-gradient(135deg, var(--primary-hover), #2563eb);
-    }
-
-    /* Empty State */
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 70px 20px;
-      background: var(--card-bg);
-      border: 1px dashed var(--card-border);
-      border-radius: 20px;
-      display: none;
-    }
-
-    .empty-icon {
-      font-size: 3rem;
+    .card-footer-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.74rem;
       color: var(--text-dim);
       margin-bottom: 14px;
     }
 
-    .empty-state h3 {
-      font-size: 1.2rem;
+    /* Action Buttons */
+    .card-action-bar {
+      display: flex;
+      gap: 8px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .btn-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      flex: 1;
+    }
+
+    .btn-card:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .btn-card:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary-action {
+      background: linear-gradient(135deg, var(--primary), #3b82f6);
+      border: none;
       color: #ffffff;
-      margin-bottom: 6px;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
     }
 
-    .empty-state p {
-      font-size: 0.88rem;
-      color: var(--text-muted);
+    .btn-primary-action:hover {
+      background: linear-gradient(135deg, var(--primary-hover), #2563eb);
     }
 
-    /* Live Toast Notification */
-    .toast {
+    .btn-copy-action {
+      background: rgba(6, 182, 212, 0.12);
+      border-color: rgba(6, 182, 212, 0.35);
+      color: #67e8f9;
+    }
+
+    .btn-copy-action:hover {
+      background: rgba(6, 182, 212, 0.22);
+      color: #ffffff;
+    }
+
+    /* Empty Card Placeholder */
+    .empty-card-block {
+      background: rgba(10, 15, 29, 0.4);
+      border: 1px dashed var(--card-border);
+      border-radius: 16px;
+      padding: 36px 20px;
+      text-align: center;
+      color: var(--text-dim);
+    }
+
+    .empty-card-block i {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .empty-card-block p {
+      font-size: 0.85rem;
+    }
+
+    /* ==========================================================================
+       6. TOAST NOTIFICATION
+       ========================================================================== */
+    .toast-msg {
       position: fixed;
       bottom: 24px;
       right: 24px;
@@ -554,51 +650,50 @@
       border: 1px solid #6366f1;
       color: #ffffff;
       padding: 12px 20px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       display: flex;
       align-items: center;
       gap: 10px;
       font-size: 0.88rem;
-      z-index: 1000;
+      font-weight: 600;
+      z-index: 2000;
       opacity: 0;
       transform: translateY(20px);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
     }
 
-    .toast.show {
+    .toast-msg.show {
       opacity: 1;
       transform: translateY(0);
     }
 
-    .toast i {
+    .toast-msg i {
       color: var(--accent);
       font-size: 1.1rem;
     }
 
-    /* Responsive adjustments */
-    @media (max-width: 680px) {
-      .navbar {
-        padding: 12px 16px;
+    /* ==========================================================================
+       7. MOBILE RESPONSIVENESS
+       ========================================================================== */
+    @media (max-width: 640px) {
+      .top-appbar {
+        padding: max(10px, env(safe-area-inset-top)) 14px 10px 14px;
       }
-      .nav-container {
-        flex-direction: row;
-        justify-content: space-between;
+      .brand-meta h1 {
+        font-size: 0.98rem;
       }
-      .brand-text span {
-        display: none;
+      .nav-tiles-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
       }
-      .user-pill span {
-        max-width: 90px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+      .hero-welcome {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px;
       }
-      .controls-panel {
-        padding: 14px;
-      }
-      .content-grid {
+      .latest-feed-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -606,102 +701,144 @@
 </head>
 <body>
 
-  <!-- Fullscreen Initial Authentication Checker -->
-  <div id="authOverlay">
-    <div class="loader-ring"></div>
-    <p style="color: #94a3b8; font-size: 0.9rem;">Authenticating portal... / সংযোগ স্থাপন হচ্ছে...</p>
+  <!-- Fullscreen Auth Verification Guard -->
+  <div id="authGuard">
+    <div class="guard-spinner"></div>
+    <p style="color: #94a3b8; font-size: 0.88rem;">Connecting Portal... • সংযোগ স্থাপন হচ্ছে...</p>
   </div>
 
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <div class="nav-container">
-      <a href="home.html" class="brand">
-        <div class="brand-logo">
-          <i class="fa-solid fa-server"></i>
+  <!-- Ambient Light Mesh -->
+  <div class="bg-canvas">
+    <div class="ambient-orb orb-top"></div>
+    <div class="ambient-orb orb-bottom"></div>
+  </div>
+
+  <!-- Top App Navigation Bar -->
+  <header class="top-appbar">
+    <div class="appbar-inner">
+      <div class="brand-cluster">
+        <div class="brand-emblem">
+          <i class="fa-solid fa-bolt"></i>
         </div>
-        <div class="brand-text">
-          <h2>Hosting List</h2>
-          <span>Live User Portal / ইউজার ড্যাশবোর্ড</span>
+        <div class="brand-meta">
+          <!-- Dynamic Website/Group Name loaded live from Firebase -->
+          <h1 id="groupNameTitle">SS TIME OFFICIAL</h1>
+          <span>User Dashboard • ড্যাশবোর্ড</span>
         </div>
+      </div>
+
+      <div class="user-profile-controls">
+        <div class="profile-pill">
+          <i class="fa-regular fa-circle-user"></i>
+          <span class="user-name-label" id="userDisplayName">User</span>
+        </div>
+        <button id="btnLogout" class="btn-logout" title="Sign Out">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Mobile-Friendly Dashboard Content -->
+  <main class="dashboard-wrapper">
+
+    <!-- Hero Welcome Greeting -->
+    <section class="hero-welcome">
+      <div class="welcome-text">
+        <h2>
+          <span>Welcome back,</span> 
+          <span id="welcomeUserName" style="color: #67e8f9;">User</span> 🌸
+        </h2>
+        <p>আবারও স্বাগতম • সর্বশেষ প্রকাশিত কন্টেন্ট এক নজরে দেখুন</p>
+      </div>
+      <div class="status-badge-active">
+        <span class="pulse-dot"></span> Active Account
+      </div>
+    </section>
+
+    <!-- Search Bar for Latest Releases -->
+    <section class="search-panel">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input 
+        type="text" 
+        id="homeSearchInput" 
+        class="search-input" 
+        placeholder="Search latest hosting, caption, song, notice... / অনুসন্ধান..." 
+      />
+      <button id="clearSearchBtn" class="search-clear-btn">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </section>
+
+    <!-- Main Navigation Tiles (4 Main Sections) -->
+    <section class="nav-tiles-grid">
+      <!-- 1. Hosting -->
+      <a href="hosting.html" class="nav-tile">
+        <div class="tile-icon-box tile-indigo">
+          <i class="fa-solid fa-microphone-lines"></i>
+        </div>
+        <h3>Hosting</h3>
+        <span>হোস্টিং স্ক্রিপ্ট</span>
       </a>
 
-      <div class="user-actions">
-        <div class="user-pill" title="Logged in user">
-          <i class="fa-regular fa-circle-user"></i>
-          <span id="displayUsername">User</span>
+      <!-- 2. Caption -->
+      <a href="caption.html" class="nav-tile">
+        <div class="tile-icon-box tile-cyan">
+          <i class="fa-solid fa-quote-left"></i>
         </div>
-        <button id="logoutBtn" class="btn-logout" title="Logout from Portal">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
-          <span>Logout / লগআউট</span>
-        </button>
-      </div>
+        <h3>Caption</h3>
+        <span>ক্যাপশন সংগ্রহ</span>
+      </a>
+
+      <!-- 3. Song Lyrics -->
+      <a href="song.html" class="nav-tile">
+        <div class="tile-icon-box tile-rose">
+          <i class="fa-solid fa-music"></i>
+        </div>
+        <h3>Song Lyrics</h3>
+        <span>গানের লিরিক্স</span>
+      </a>
+
+      <!-- 4. Other / Notices -->
+      <a href="other.html" class="nav-tile">
+        <div class="tile-icon-box tile-amber">
+          <i class="fa-solid fa-bullhorn"></i>
+        </div>
+        <h3>Other</h3>
+        <span>নোটিশ ও অন্যান্য</span>
+      </a>
+    </section>
+
+    <!-- Latest Releases Section (VERSION RULE: ONLY LATEST RELEASES SHOWN) -->
+    <div class="section-header">
+      <h3>
+        <i class="fa-solid fa-sparkles" style="color: var(--accent);"></i>
+        Latest Releases • সর্বশেষ কন্টেন্ট
+      </h3>
+      <span>Version Rule Active</span>
     </div>
-  </nav>
 
-  <!-- Main Content Layout -->
-  <main class="main-content">
-    
-    <!-- Urgent Announcement / Notice Banner -->
-    <section id="noticeSection">
-      <!-- Notices will render here dynamically -->
+    <!-- Latest Content Feed Grid -->
+    <section class="latest-feed-grid" id="latestFeedContainer">
+      <!-- Dynamic Latest Cards Injected Here via Firebase -->
     </section>
 
-    <!-- Controls: Live Search & Category Filter -->
-    <section class="controls-panel">
-      <div class="search-box">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input 
-          type="text" 
-          id="searchInput" 
-          class="search-input" 
-          placeholder="Search hosting, songs, captions... / তথ্য অনুসন্ধান করুন..." 
-        />
-        <button id="clearSearch" class="search-clear" title="Clear Search">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="filter-tabs" id="filterTabs">
-        <button class="tab-btn active" data-filter="all">
-          <i class="fa-solid fa-border-all"></i> All / সব (<span id="countAll">0</span>)
-        </button>
-        <button class="tab-btn" data-filter="hosting">
-          <i class="fa-solid fa-server"></i> Hosting (<span id="countHosting">0</span>)
-        </button>
-        <button class="tab-btn" data-filter="caption">
-          <i class="fa-solid fa-quote-left"></i> Captions (<span id="countCaption">0</span>)
-        </button>
-        <button class="tab-btn" data-filter="song">
-          <i class="fa-solid fa-music"></i> Songs (<span id="countSong">0</span>)
-        </button>
-      </div>
-    </section>
-
-    <!-- Content Feed Grid -->
-    <section class="content-grid" id="contentGrid">
-      <!-- Dynamic Content Cards Will Be Injected Here via Firebase -->
-    </section>
-
-    <!-- Empty State -->
-    <div id="emptyState" class="empty-state">
-      <div class="empty-icon">
-        <i class="fa-regular fa-folder-open"></i>
-      </div>
-      <h3 id="emptyTitle">No Content Published Yet</h3>
-      <p id="emptyDesc">Currently there are no active items available. Please check back later. / এই মুহূর্তে কোনো তথ্য প্রকাশিত নেই।</p>
-    </div>
   </main>
 
-  <!-- Toast Notification Pop-up -->
-  <div id="toast" class="toast">
+  <!-- Floating Toast Notification -->
+  <div id="toast" class="toast-msg">
     <i class="fa-solid fa-circle-check"></i>
-    <span id="toastMsg">Copied to clipboard! / ক্লিপবোর্ডে কপি করা হয়েছে!</span>
+    <span id="toastText">Copied successfully ✓ • কপি করা হয়েছে ✓</span>
   </div>
 
+  <!-- ==========================================================================
+       8. SECURE REALTIME CLIENT SCRIPT
+       ========================================================================== -->
   <script>
-    // ==========================================
-    // 1. FIREBASE INITIALIZATION
-    // ==========================================
+    // --------------------------------------------------------------------------
+    // A. FIREBASE CONFIGURATION
+    // --------------------------------------------------------------------------
     const firebaseConfig = {
       apiKey: "AIzaSyCjh-etprmOrbu7UMYNXXHdNXgiVPCxywY",
       authDomain: "alifi-1e15c.firebaseapp.com",
@@ -719,75 +856,69 @@
     const db = firebase.database();
 
     // DOM Elements
-    const authOverlay = document.getElementById('authOverlay');
-    const displayUsername = document.getElementById('displayUsername');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const contentGrid = document.getElementById('contentGrid');
-    const noticeSection = document.getElementById('noticeSection');
-    const emptyState = document.getElementById('emptyState');
-    const searchInput = document.getElementById('searchInput');
-    const clearSearchBtn = document.getElementById('clearSearch');
-    const filterTabs = document.getElementById('filterTabs');
+    const authGuard = document.getElementById('authGuard');
+    const groupNameTitle = document.getElementById('groupNameTitle');
+    const userDisplayName = document.getElementById('userDisplayName');
+    const welcomeUserName = document.getElementById('welcomeUserName');
+    const btnLogout = document.getElementById('btnLogout');
+    const latestFeedContainer = document.getElementById('latestFeedContainer');
+    const homeSearchInput = document.getElementById('homeSearchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
     const toast = document.getElementById('toast');
-    const toastMsg = document.getElementById('toastMsg');
+    const toastText = document.getElementById('toastText');
 
-    // Counts DOM
-    const countAll = document.getElementById('countAll');
-    const countHosting = document.getElementById('countHosting');
-    const countCaption = document.getElementById('countCaption');
-    const countSong = document.getElementById('countSong');
+    let allContentsRaw = [];
 
-    // State Variables
-    let allItems = [];
-    let currentFilter = 'all';
-    let currentSearch = '';
-
-    // ==========================================
-    // 2. AUTHENTICATION & ACCESS CONTROL
-    // ==========================================
+    // --------------------------------------------------------------------------
+    // B. AUTHENTICATION & ACCESS VERIFICATION
+    // --------------------------------------------------------------------------
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
-        // User not authenticated -> redirect to index.html
+        // Not logged in -> Redirect to index.html
         window.location.href = 'index.html';
         return;
       }
 
       try {
-        // Verify User Account Status in Realtime Database
-        const snapshot = await db.ref(`users/${user.uid}`).once('value');
-        if (!snapshot.exists()) {
+        // Verify User Profile & Active Status in RTDB
+        const userSnap = await db.ref(`users/${user.uid}`).once('value');
+        if (!userSnap.exists()) {
           await auth.signOut();
           window.location.href = 'index.html';
           return;
         }
 
-        const userData = snapshot.val();
+        const userData = userSnap.val();
+        const isBlocked = userData.status === 'blocked' || 
+                          userData.status === 'inactive' || 
+                          userData.isBlocked === true;
 
-        // Check if user is blocked, inactive, or marked deleted
-        if (userData.status === 'blocked' || userData.status === 'deleted' || userData.status === 'inactive' || userData.isBlocked === true) {
+        if (isBlocked) {
           await auth.signOut();
           sessionStorage.clear();
           window.location.href = 'index.html';
           return;
         }
 
-        // Set User Profile UI
-        displayUsername.textContent = userData.username || user.displayName || user.email.split('@')[0];
+        // Set User Profile Greeting
+        const nameToDisplay = userData.fullName || userData.username || user.email.split('@')[0];
+        userDisplayName.textContent = nameToDisplay;
+        welcomeUserName.textContent = nameToDisplay;
 
-        // Hide Loader overlay
-        authOverlay.style.display = 'none';
+        // Dismiss Auth Splash
+        authGuard.style.display = 'none';
 
-        // Start Live Realtime Database Listeners
-        initializeRealtimeListeners();
+        // Start Live Real-time Database Listeners
+        initLiveSystem();
 
       } catch (err) {
-        console.error("Auth status verification error:", err);
-        authOverlay.style.display = 'none';
+        console.error("Auth Guard verification error:", err);
+        authGuard.style.display = 'none';
       }
     });
 
-    // Logout Handler
-    logoutBtn.addEventListener('click', async () => {
+    // Secure Logout Handler
+    btnLogout.addEventListener('click', async () => {
       try {
         await auth.signOut();
         sessionStorage.clear();
@@ -797,270 +928,351 @@
       }
     });
 
-    // ==========================================
-    // 3. REALTIME DATABASE SYNC
-    // ==========================================
-    function initializeRealtimeListeners() {
-      // Listen to notices/announcements node
-      db.ref('notices').on('value', (snapshot) => {
-        renderNotices(snapshot.val());
+    // --------------------------------------------------------------------------
+    // C. REALTIME DATABASE LISTENERS
+    // --------------------------------------------------------------------------
+    function initLiveSystem() {
+      // 1. Live Dynamic Title listener (Group Name from admin settings)
+      db.ref('settings/groupName').on('value', (snap) => {
+        const titleVal = snap.val();
+        if (titleVal && typeof titleVal === 'string' && titleVal.trim().length > 0) {
+          groupNameTitle.textContent = titleVal.trim();
+          document.title = `${titleVal.trim()} | Dashboard`;
+        }
       });
 
-      // Listen to master content/hostings nodes
-      // Supporting admin-published nodes: 'hostings', 'posts', and 'contents'
-      db.ref('hostings').on('value', (snapHostings) => {
-        const hostingsData = snapHostings.val() || {};
+      // 2. Live Content Listeners (Listening to contents, hostings, notices)
+      db.ref('contents').on('value', (snapContents) => {
+        const contentsData = snapContents.val() || {};
 
-        db.ref('posts').on('value', (snapPosts) => {
-          const postsData = snapPosts.val() || {};
+        db.ref('hostings').on('value', (snapHostings) => {
+          const hostingsData = snapHostings.val() || {};
 
-          db.ref('contents').on('value', (snapContents) => {
-            const contentsData = snapContents.val() || {};
+          db.ref('notices').on('value', (snapNotices) => {
+            const noticesData = snapNotices.val() || {};
 
-            // Consolidate all admin-published content
-            allItems = processRawData({ ...hostingsData, ...postsData, ...contentsData });
-            renderFeed();
+            // Consolidate all database items into flat array
+            allContentsRaw = normalizeData({ ...contentsData, ...hostingsData, ...noticesData });
+            renderLatestSection();
           });
         });
       });
     }
 
-    // Process and normalize database content
-    function processRawData(dataObj) {
-      if (!dataObj) return [];
-
+    // Process and normalize database records
+    function normalizeData(rawObj) {
+      if (!rawObj) return [];
       const list = [];
-      Object.keys(dataObj).forEach(key => {
-        const item = dataObj[key];
+      Object.keys(rawObj).forEach(key => {
+        const item = rawObj[key];
         if (!item || typeof item !== 'object') return;
 
-        // Skip unpublished or deleted content automatically
-        const isHidden = item.status === 'unpublished' || item.status === 'deleted' || item.status === 'inactive' || item.isPublished === false;
+        // Filter out unpublished or deleted content automatically
+        const isHidden = item.status === 'unpublished' || 
+                         item.status === 'deleted' || 
+                         item.isPublished === false;
         if (isHidden) return;
 
         list.push({
           id: key,
-          type: item.type || (item.url ? 'hosting' : item.song || item.audioUrl ? 'song' : item.caption ? 'caption' : 'general'),
-          name: item.name || item.title || item.hostingName || 'Untitled Hosting / Content',
-          url: item.url || item.hostingUrl || item.link || '',
-          details: item.details || item.desc || item.description || item.specs || '',
-          caption: item.caption || '',
-          song: item.song || item.songTitle || item.audioTitle || '',
-          audioUrl: item.audioUrl || item.musicUrl || '',
-          comment: item.comment || item.note || item.adminNote || '',
-          timestamp: item.timestamp || item.createdAt || item.date || Date.now(),
-          status: item.status || 'active'
+          title: item.title || item.name || item.hostingName || 'Untitled',
+          category: item.category || item.type || 'Other',
+          presenter: item.presenter || '',
+          singer: item.singer || item.artist || item.song || '',
+          content: item.content || item.details || item.message || item.caption || '',
+          version: item.version || item.ver || 'v1.0',
+          serial: item.serialNumber || item.serial || item.id.substring(1, 6).toUpperCase(),
+          status: item.status || 'published',
+          updatedAt: item.updatedAt || item.createdAt || item.timestamp || Date.now()
         });
       });
 
-      // Sort newest first
-      return list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      return list;
     }
 
-    // ==========================================
-    // 4. RENDER NOTICES / ANNOUNCEMENTS
-    // ==========================================
-    function renderNotices(noticesObj) {
-      if (!noticesObj) {
-        noticeSection.innerHTML = '';
-        noticeSection.style.display = 'none';
-        return;
-      }
+    // --------------------------------------------------------------------------
+    // D. VERSION RULE ENGINE: COMPUTE ONLY LATEST VERSION FOR HOME
+    // --------------------------------------------------------------------------
+    function computeLatestContent(searchTerm = '') {
+      const q = searchTerm.toLowerCase().trim();
 
-      let activeNotices = [];
-      Object.keys(noticesObj).forEach(id => {
-        const n = noticesObj[id];
-        if (n && n.status !== 'deleted' && n.status !== 'unpublished' && n.isActive !== false) {
-          activeNotices.push(n);
-        }
-      });
+      // Categorize records
+      const categories = {
+        hosting: [],
+        caption: [],
+        song: [],
+        other: []
+      };
 
-      if (activeNotices.length === 0) {
-        noticeSection.innerHTML = '';
-        noticeSection.style.display = 'none';
-        return;
-      }
+      allContentsRaw.forEach(item => {
+        const cat = (item.category || '').toLowerCase();
+        const type = (item.type || '').toLowerCase();
 
-      noticeSection.style.display = 'block';
-      noticeSection.innerHTML = activeNotices.map(n => `
-        <div class="notice-card">
-          <i class="fa-solid fa-bullhorn notice-icon"></i>
-          <div class="notice-body">
-            <h4>${escapeHTML(n.title || 'Official Announcement / বিশেষ বিজ্ঞপ্তি')}</h4>
-            <p>${escapeHTML(n.message || n.text || n.content || '')}</p>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // ==========================================
-    // 5. RENDER CONTENT FEED & CARDS
-    // ==========================================
-    function renderFeed() {
-      // 1. Calculate Counts
-      let hCount = 0, cCount = 0, sCount = 0;
-      allItems.forEach(item => {
-        if (item.type === 'hosting' || item.url) hCount++;
-        if (item.caption) cCount++;
-        if (item.song || item.audioUrl) sCount++;
-      });
-      countAll.textContent = allItems.length;
-      countHosting.textContent = hCount;
-      countCaption.textContent = cCount;
-      countSong.textContent = sCount;
-
-      // 2. Filter & Search
-      const filtered = allItems.filter(item => {
-        // Tab Filter
-        if (currentFilter === 'hosting' && !(item.type === 'hosting' || item.url)) return false;
-        if (currentFilter === 'caption' && !item.caption) return false;
-        if (currentFilter === 'song' && !(item.song || item.audioUrl)) return false;
-
-        // Search Filter
-        if (currentSearch) {
-          const q = currentSearch.toLowerCase();
-          const matches = 
-            (item.name && item.name.toLowerCase().includes(q)) ||
-            (item.url && item.url.toLowerCase().includes(q)) ||
-            (item.details && item.details.toLowerCase().includes(q)) ||
-            (item.caption && item.caption.toLowerCase().includes(q)) ||
-            (item.song && item.song.toLowerCase().includes(q)) ||
-            (item.comment && item.comment.toLowerCase().includes(q));
-          if (!matches) return false;
-        }
-
-        return true;
-      });
-
-      // 3. Render Empty State or Cards
-      if (filtered.length === 0) {
-        contentGrid.innerHTML = '';
-        emptyState.style.display = 'block';
-        if (currentSearch) {
-          document.getElementById('emptyTitle').textContent = 'No Search Results Found';
-          document.getElementById('emptyDesc').textContent = `No items matched "${currentSearch}". Try a different keyword. / কোনো ফলাফল পাওয়া যায়নি।`;
+        if (cat.includes('ss time') || cat.includes('hosting') || type.includes('hosting') || item.presenter) {
+          categories.hosting.push(item);
+        } else if (cat.includes('caption') || type.includes('caption')) {
+          categories.caption.push(item);
+        } else if (cat.includes('song') || type.includes('song') || item.singer) {
+          categories.song.push(item);
         } else {
-          document.getElementById('emptyTitle').textContent = 'No Content Available';
-          document.getElementById('emptyDesc').textContent = 'No published items in this category yet. / এই ক্যাটাগরিতে এখনো কোনো তথ্য প্রকাশিত হয়নি।';
+          categories.other.push(item);
         }
-        return;
-      }
+      });
 
-      emptyState.style.display = 'none';
+      // Helper to pick ONLY the single latest item from a category array
+      const pickLatest = (arr) => {
+        if (!arr || arr.length === 0) return null;
+        // Sort newest first by timestamp
+        arr.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+        
+        if (q) {
+          // If searching, find latest matching item
+          return arr.find(item => 
+            (item.title && item.title.toLowerCase().includes(q)) ||
+            (item.content && item.content.toLowerCase().includes(q)) ||
+            (item.presenter && item.presenter.toLowerCase().includes(q)) ||
+            (item.singer && item.singer.toLowerCase().includes(q))
+          ) || null;
+        }
 
-      // 4. Construct Cards HTML
-      contentGrid.innerHTML = filtered.map(item => {
-        const formattedDate = item.timestamp ? new Date(item.timestamp).toLocaleDateString(undefined, {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric'
-        }) : '';
+        // Home shows ONLY the single latest item
+        return arr[0];
+      };
 
-        return `
-          <div class="card">
+      return {
+        latestHosting: pickLatest(categories.hosting),
+        latestCaption: pickLatest(categories.caption),
+        latestSong: pickLatest(categories.song),
+        latestOther: pickLatest(categories.other)
+      };
+    }
+
+    // --------------------------------------------------------------------------
+    // E. RENDER LATEST CONTENT CARDS
+    // --------------------------------------------------------------------------
+    function renderLatestSection() {
+      const q = homeSearchInput.value;
+      const { latestHosting, latestCaption, latestSong, latestOther } = computeLatestContent(q);
+
+      let html = '';
+
+      // 1. 🎤 LATEST HOSTING CARD
+      if (latestHosting) {
+        const dateStr = new Date(latestHosting.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        html += `
+          <div class="latest-card">
             <div>
-              <div class="card-top">
-                <span class="card-type-tag">
-                  <i class="${getTypeIcon(item.type)}"></i> ${escapeHTML(item.type)}
-                </span>
-                ${formattedDate ? `<span class="card-date"><i class="fa-regular fa-clock"></i> ${formattedDate}</span>` : ''}
+              <div class="card-top-bar">
+                <div class="badge-cluster">
+                  <span class="type-badge type-hosting"><i class="fa-solid fa-microphone-lines"></i> Latest Hosting</span>
+                  <span class="version-tag">${escapeHTML(latestHosting.version)}</span>
+                </div>
+                <span class="serial-tag">#${escapeHTML(latestHosting.serial)}</span>
               </div>
 
-              <h3 class="card-title">${escapeHTML(item.name)}</h3>
+              <h4 class="card-title">${escapeHTML(latestHosting.title)}</h4>
+              ${latestHosting.presenter ? `<div class="presenter-meta"><i class="fa-solid fa-user-tie"></i> Presenter: <strong>${escapeHTML(latestHosting.presenter)}</strong></div>` : ''}
 
-              ${item.url ? `
-                <div class="url-chip">
-                  <i class="fa-solid fa-link"></i>
-                  <a href="${formatURL(item.url)}" target="_blank" rel="noopener noreferrer" class="url-text" title="Open Link">
-                    ${escapeHTML(item.url)}
-                  </a>
-                  <button class="btn-action" style="padding: 4px 8px; flex:none;" onclick="copyText('${escapeQuotes(item.url)}', 'Hosting URL Copied / হোস্টিং লিংক কপি হয়েছে!')" title="Copy URL">
-                    <i class="fa-regular fa-copy"></i>
-                  </button>
-                </div>
-              ` : ''}
+              <div class="short-preview-box">
+                ${escapeHTML(latestHosting.content)}
+              </div>
 
-              ${item.details ? `
-                <p class="card-desc">${escapeHTML(item.details)}</p>
-              ` : ''}
-
-              ${item.caption ? `
-                <div class="sub-section">
-                  <div class="sub-section-title">
-                    <i class="fa-solid fa-quote-left"></i> Caption / ক্যাপশন:
-                  </div>
-                  <div class="sub-section-content">${escapeHTML(item.caption)}</div>
-                </div>
-              ` : ''}
-
-              ${item.song ? `
-                <div class="sub-section">
-                  <div class="sub-section-title">
-                    <i class="fa-solid fa-music"></i> Song / অডিও ট্র্যাক:
-                  </div>
-                  <div class="sub-section-content">${escapeHTML(item.song)}</div>
-                </div>
-              ` : ''}
-
-              ${item.audioUrl ? `
-                <div class="audio-player-wrapper">
-                  <audio controls preload="none">
-                    <source src="${escapeHTML(item.audioUrl)}" type="audio/mpeg">
-                    Your browser does not support the audio element.
-                  </audio>
-                </div>
-              ` : ''}
-
-              ${item.comment ? `
-                <div class="sub-section" style="border-left-color: var(--accent);">
-                  <div class="sub-section-title" style="color: var(--accent);">
-                    <i class="fa-solid fa-comment-dots"></i> Admin Note / মন্তব্য:
-                  </div>
-                  <div class="sub-section-content">${escapeHTML(item.comment)}</div>
-                </div>
-              ` : ''}
+              <div class="card-footer-meta">
+                <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                <span>Category: ${escapeHTML(latestHosting.category)}</span>
+              </div>
             </div>
 
-            <div class="card-actions">
-              ${item.url ? `
-                <a href="${formatURL(item.url)}" target="_blank" rel="noopener noreferrer" class="btn-action btn-visit">
-                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit / ভিজিট
-                </a>
-              ` : ''}
-              
-              <button class="btn-action" onclick="copyFullInfo('${item.id}')">
-                <i class="fa-regular fa-copy"></i> Copy Info / কপি করুন
-              </button>
-
-              ${item.caption ? `
-                <button class="btn-action" onclick="copyText('${escapeQuotes(item.caption)}', 'Caption Copied / ক্যাপশন কপি হয়েছে!')">
-                  <i class="fa-solid fa-quote-right"></i> Copy Caption
-                </button>
-              ` : ''}
+            <div class="card-action-bar">
+              <a href="hosting.html" class="btn-card btn-primary-action">
+                <i class="fa-solid fa-arrow-right"></i> View Hosting / সম্পূর্ণ দেখুন
+              </a>
             </div>
           </div>
         `;
-      }).join('');
+      } else {
+        html += `
+          <div class="empty-card-block">
+            <i class="fa-solid fa-microphone-slash"></i>
+            <p>কোনো নতুন Hosting নেই • No latest Hosting available</p>
+          </div>
+        `;
+      }
+
+      // 2. 📝 LATEST CAPTION CARD
+      if (latestCaption) {
+        const dateStr = new Date(latestCaption.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        html += `
+          <div class="latest-card">
+            <div>
+              <div class="card-top-bar">
+                <div class="badge-cluster">
+                  <span class="type-badge type-caption"><i class="fa-solid fa-quote-left"></i> Latest Caption</span>
+                  <span class="version-tag">${escapeHTML(latestCaption.version)}</span>
+                </div>
+                <span class="serial-tag">#${escapeHTML(latestCaption.serial)}</span>
+              </div>
+
+              <h4 class="card-title">${escapeHTML(latestCaption.title)}</h4>
+
+              <div class="short-preview-box">
+                ${escapeHTML(latestCaption.content)}
+              </div>
+
+              <div class="card-footer-meta">
+                <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                <span>Latest Version</span>
+              </div>
+            </div>
+
+            <div class="card-action-bar">
+              <button class="btn-card btn-copy-action" onclick="copyToClipboard('${escapeQuotes(latestCaption.content)}', 'Caption copied! • ক্যাপশন কপি হয়েছে!')">
+                <i class="fa-regular fa-copy"></i> Copy Caption
+              </button>
+              <a href="caption.html" class="btn-card">
+                View All
+              </a>
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="empty-card-block">
+            <i class="fa-solid fa-quote-right"></i>
+            <p>কোনো নতুন Caption নেই • No latest Caption available</p>
+          </div>
+        `;
+      }
+
+      // 3. 🎵 LATEST SONG LYRICS CARD
+      if (latestSong) {
+        const dateStr = new Date(latestSong.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        html += `
+          <div class="latest-card">
+            <div>
+              <div class="card-top-bar">
+                <div class="badge-cluster">
+                  <span class="type-badge type-song"><i class="fa-solid fa-music"></i> Latest Song</span>
+                  <span class="version-tag">${escapeHTML(latestSong.version)}</span>
+                </div>
+                <span class="serial-tag">#${escapeHTML(latestSong.serial)}</span>
+              </div>
+
+              <h4 class="card-title">${escapeHTML(latestSong.title)}</h4>
+              ${latestSong.singer ? `<div class="presenter-meta" style="color: var(--rose);"><i class="fa-solid fa-user-music"></i> Singer: <strong>${escapeHTML(latestSong.singer)}</strong></div>` : ''}
+
+              <div class="short-preview-box">
+                ${escapeHTML(latestSong.content)}
+              </div>
+
+              <div class="card-footer-meta">
+                <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                <span>Lyrics Snippet</span>
+              </div>
+            </div>
+
+            <div class="card-action-bar">
+              <button class="btn-card btn-copy-action" onclick="copyToClipboard('${escapeQuotes(latestSong.content)}', 'Lyrics copied! • লিরিক্স কপি হয়েছে!')">
+                <i class="fa-regular fa-copy"></i> Copy Lyrics
+              </button>
+              <a href="song.html" class="btn-card">
+                View All
+              </a>
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="empty-card-block">
+            <i class="fa-solid fa-music-slash"></i>
+            <p>কোনো নতুন Song নেই • No latest Song available</p>
+          </div>
+        `;
+      }
+
+      // 4. 📢 LATEST OTHER / NOTICE CARD
+      if (latestOther) {
+        const dateStr = new Date(latestOther.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        html += `
+          <div class="latest-card">
+            <div>
+              <div class="card-top-bar">
+                <div class="badge-cluster">
+                  <span class="type-badge type-other"><i class="fa-solid fa-bullhorn"></i> Latest Other</span>
+                  <span class="version-tag">${escapeHTML(latestOther.version)}</span>
+                </div>
+                <span class="serial-tag">#${escapeHTML(latestOther.serial)}</span>
+              </div>
+
+              <h4 class="card-title">${escapeHTML(latestOther.title)}</h4>
+
+              <div class="short-preview-box">
+                ${escapeHTML(latestOther.content)}
+              </div>
+
+              <div class="card-footer-meta">
+                <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                <span>Notice / Update</span>
+              </div>
+            </div>
+
+            <div class="card-action-bar">
+              <a href="other.html" class="btn-card btn-primary-action">
+                <i class="fa-solid fa-arrow-right"></i> Read More / বিস্তারিত
+              </a>
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="empty-card-block">
+            <i class="fa-solid fa-bell-slash"></i>
+            <p>কোনো নতুন Notice নেই • No latest Notice available</p>
+          </div>
+        `;
+      }
+
+      latestFeedContainer.innerHTML = html;
     }
 
-    // ==========================================
-    // 6. UTILITY FUNCTIONS & EVENT LISTENERS
-    // ==========================================
-    function getTypeIcon(type) {
-      switch(type?.toLowerCase()) {
-        case 'hosting': return 'fa-solid fa-server';
-        case 'song': return 'fa-solid fa-music';
-        case 'caption': return 'fa-solid fa-quote-left';
-        default: return 'fa-solid fa-layer-group';
-      }
-    }
+    // --------------------------------------------------------------------------
+    // F. SEARCH, CLIPBOARD & UTILITIES
+    // --------------------------------------------------------------------------
+    homeSearchInput.addEventListener('input', (e) => {
+      const val = e.target.value;
+      clearSearchBtn.style.display = val ? 'block' : 'none';
+      renderLatestSection();
+    });
 
-    function formatURL(url) {
-      if (!url) return '#';
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        return 'https://' + url;
-      }
-      return url;
+    clearSearchBtn.addEventListener('click', () => {
+      homeSearchInput.value = '';
+      clearSearchBtn.style.display = 'none';
+      renderLatestSection();
+      homeSearchInput.focus();
+    });
+
+    // Copy to Clipboard with Animated Toast Feedback
+    window.copyToClipboard = function(text, successMsg) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(successMsg || 'Copied successfully ✓ • কপি করা হয়েছে ✓');
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast(successMsg || 'Copied successfully ✓ • কপি করা হয়েছে ✓');
+      });
+    };
+
+    function showToast(msg) {
+      toastText.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
     }
 
     function escapeHTML(str) {
@@ -1081,74 +1293,6 @@
         .replace(/\n/g, '\\n')
         .replace(/\r/g, '');
     }
-
-    // Copy to Clipboard with Toast feedback
-    window.copyText = function(text, successMsg) {
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(() => {
-        showToast(successMsg || 'Copied to clipboard! / ক্লিপবোর্ডে কপি করা হয়েছে!');
-      }).catch(err => {
-        // Fallback for non-https/older browsers
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        showToast(successMsg || 'Copied to clipboard! / ক্লিপবোর্ডে কপি করা হয়েছে!');
-      });
-    };
-
-    // Copy complete item information
-    window.copyFullInfo = function(itemId) {
-      const item = allItems.find(i => i.id === itemId);
-      if (!item) return;
-
-      let infoParts = [];
-      if (item.name) infoParts.push(`📌 Name: ${item.name}`);
-      if (item.url) infoParts.push(`🔗 URL: ${item.url}`);
-      if (item.details) infoParts.push(`📝 Details: ${item.details}`);
-      if (item.caption) infoParts.push(`💬 Caption: ${item.caption}`);
-      if (item.song) infoParts.push(`🎵 Song: ${item.song}`);
-      if (item.comment) infoParts.push(`💡 Note: ${item.comment}`);
-
-      const fullText = infoParts.join('\n\n');
-      copyText(fullText, 'Full details copied! / সকল তথ্য কপি করা হয়েছে!');
-    };
-
-    function showToast(msg) {
-      toastMsg.textContent = msg;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2500);
-    }
-
-    // Tab Switching
-    filterTabs.addEventListener('click', (e) => {
-      const btn = e.target.closest('.tab-btn');
-      if (!btn) return;
-
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentFilter = btn.getAttribute('data-filter');
-      renderFeed();
-    });
-
-    // Search Input Listener
-    searchInput.addEventListener('input', (e) => {
-      currentSearch = e.target.value.trim();
-      clearSearchBtn.style.display = currentSearch ? 'block' : 'none';
-      renderFeed();
-    });
-
-    clearSearchBtn.addEventListener('click', () => {
-      searchInput.value = '';
-      currentSearch = '';
-      clearSearchBtn.style.display = 'none';
-      renderFeed();
-      searchInput.focus();
-    });
   </script>
 </body>
 </html>
