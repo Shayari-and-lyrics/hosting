@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Caption Library | SS TIME OFFICIAL</title>
 
-  <!-- Google Fonts: Hind Siliguri (Bengali), Plus Jakarta Sans & Fira Code -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -22,670 +22,92 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
-    /* ==========================================================================
-       1. LUXURY MOBILE-FIRST CSS VARIABLES & RESET
-       ========================================================================== */
     :root {
       --bg-base: #050811;
       --card-bg: rgba(13, 19, 36, 0.72);
       --card-border: rgba(255, 255, 255, 0.08);
       --card-hover: rgba(20, 28, 52, 0.9);
       --reader-bg: #090e1c;
-      --primary: #6366f1;
-      --primary-light: #818cf8;
-      --accent: #06b6d4;
+      --primary: #06b6d4;
+      --primary-light: #67e8f9;
+      --accent: #6366f1;
       --accent-glow: rgba(6, 182, 212, 0.35);
       --cyan-badge: rgba(6, 182, 212, 0.15);
-      --rose: #f43f5e;
-      --amber: #f59e0b;
-      --emerald: #10b981;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --text-dim: #64748b;
       --input-bg: rgba(10, 15, 28, 0.82);
-      --font-main: 'Plus Jakarta Sans', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-      font-family: var(--font-main);
-    }
-
-    body {
-      background-color: var(--bg-base);
-      min-height: 100vh;
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Auth Verification Splash Guard */
-    #authGuard {
-      position: fixed;
-      inset: 0;
-      background: #050811;
-      z-index: 99999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-    }
-
-    .guard-spinner {
-      width: 46px;
-      height: 46px;
-      border: 3px solid rgba(255, 255, 255, 0.08);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Ambient Glowing Orbs Background */
-    .bg-mesh {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-
-    .ambient-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(120px);
-      opacity: 0.65;
-      pointer-events: none;
-    }
-
-    .orb-1 {
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, rgba(6, 182, 212, 0.28), transparent 70%);
-      top: -40px;
-      left: 15%;
-    }
-
-    .orb-2 {
-      width: 340px;
-      height: 340px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.22), transparent 70%);
-      bottom: 5%;
-      right: 10%;
-    }
-
-    /* ==========================================================================
-       2. TOP APP BAR & NAVIGATION
-       ========================================================================== */
-    .top-appbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(8, 12, 24, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--card-border);
-      padding: max(12px, env(safe-area-inset-top)) 18px 12px 18px;
-    }
-
-    .appbar-inner {
-      max-width: 1000px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .left-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .btn-back-home {
-      width: 40px;
-      height: 40px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-main);
-      text-decoration: none;
-      font-size: 1rem;
-      transition: all 0.2s ease;
-      flex-shrink: 0;
-    }
-
-    .btn-back-home:hover {
-      background: rgba(255, 255, 255, 0.12);
-      color: #fff;
-      transform: translateX(-2px);
-    }
-
-    .btn-back-home:active {
-      transform: scale(0.94);
-    }
-
-    .brand-meta h1 {
-      font-size: 1.15rem;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-      text-transform: uppercase;
-      background: linear-gradient(135deg, #ffffff 30%, #67e8f9 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      line-height: 1.2;
-    }
-
-    .brand-meta span {
-      font-size: 0.74rem;
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .header-badge-count {
-      background: var(--cyan-badge);
-      border: 1px solid rgba(6, 182, 212, 0.35);
-      color: #67e8f9;
-      font-size: 0.76rem;
-      font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    /* ==========================================================================
-       3. MAIN CONTAINER & SEARCH
-       ========================================================================== */
-    .content-wrapper {
-      max-width: 1000px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 18px 16px 60px 16px;
-      flex: 1;
-      position: relative;
-      z-index: 10;
-      animation: entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes entrance {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Search Box */
-    .search-panel {
-      position: relative;
-      margin-bottom: 20px;
-    }
-
-    .search-panel i {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-dim);
-      font-size: 0.95rem;
-    }
-
-    .search-input {
-      width: 100%;
-      background: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 12px 40px 12px 44px;
-      color: #ffffff;
-      font-size: 0.9rem;
-      outline: none;
-      transition: all 0.25s;
-    }
-
-    .search-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
-    }
-
-    .search-clear-btn {
-      position: absolute;
-      right: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--text-dim);
-      font-size: 0.9rem;
-      cursor: pointer;
-      display: none;
-    }
-
-    /* ==========================================================================
-       4. COMPACT CAPTION CARDS GRID
-       ========================================================================== */
-    .caption-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 16px;
-    }
-
-    .caption-compact-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border-radius: 18px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: all 0.25s ease;
-      position: relative;
-      overflow: hidden;
-      animation: fadeInCard 0.35s ease-out;
-    }
-
-    @keyframes fadeInCard {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .caption-compact-card:hover {
-      border-color: rgba(255, 255, 255, 0.16);
-      background: var(--card-hover);
-      transform: translateY(-2px);
-    }
-
-    .card-top-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .serial-badge {
-      font-size: 0.74rem;
-      font-weight: 700;
-      font-family: 'Fira Code', monospace;
-      color: var(--accent);
-      background: rgba(6, 182, 212, 0.12);
-      border: 1px solid rgba(6, 182, 212, 0.3);
-      padding: 2px 8px;
-      border-radius: 6px;
-    }
-
-    .version-tag-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: #6ee7b7;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      padding: 2px 7px;
-      border-radius: 6px;
-    }
-
-    .card-caption-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 8px;
-      line-height: 1.35;
-    }
-
-    /* Truncated Preview Box */
-    .caption-preview-box {
-      font-size: 0.88rem;
-      color: #cbd5e1;
-      line-height: 1.6;
-      margin-bottom: 12px;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      word-break: break-word;
-      background: rgba(10, 15, 29, 0.65);
-      border-left: 3px solid var(--accent);
-      border-radius: 0 8px 8px 0;
-      padding: 10px 12px;
-    }
-
-    .card-bottom-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.72rem;
-      color: var(--text-dim);
-      margin-bottom: 12px;
-    }
-
-    .card-action-bar {
-      display: flex;
-      gap: 8px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .btn-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      color: var(--text-main);
-      padding: 8px 12px;
-      border-radius: 10px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all 0.2s ease;
-      flex: 1;
-    }
-
-    .btn-card:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-
-    .btn-card:active {
-      transform: scale(0.96);
-    }
-
-    .btn-primary-view {
-      background: linear-gradient(135deg, var(--primary), #3b82f6);
-      border: none;
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
-    }
-
-    .btn-primary-view:hover {
-      background: linear-gradient(135deg, var(--primary-hover), #2563eb);
-    }
-
-    .btn-copy-card {
-      background: rgba(6, 182, 212, 0.12);
-      border-color: rgba(6, 182, 212, 0.35);
-      color: #67e8f9;
-    }
-
-    .btn-copy-card:hover {
-      background: rgba(6, 182, 212, 0.22);
-      color: #ffffff;
-    }
-
-    /* Empty State Placeholder */
-    .empty-placeholder {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 60px 20px;
-      background: var(--card-bg);
-      border: 1px dashed var(--card-border);
-      border-radius: 20px;
-      color: var(--text-dim);
-    }
-
-    .empty-placeholder i {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-      color: var(--text-muted);
-    }
-
-    /* ==========================================================================
-       5. FULL MOBILE CAPTION VIEW (BOTTOM SHEET DRAWER)
-       ========================================================================== */
-    .reader-modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      z-index: 1000;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-    }
-
-    .reader-modal-sheet {
-      background: var(--reader-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 24px 24px 0 0;
-      width: 100%;
-      max-width: 760px;
-      max-height: 90vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.8);
-      animation: sheetUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      overflow: hidden;
-    }
-
-    @keyframes sheetUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-
-    /* Sticky Modal Header */
-    .reader-header {
-      background: rgba(13, 19, 36, 0.95);
-      border-bottom: 1px solid var(--card-border);
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .reader-header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      overflow: hidden;
-    }
-
-    .btn-close-reader {
-      width: 38px;
-      height: 38px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      color: var(--text-main);
-      font-size: 1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      flex-shrink: 0;
-    }
-
-    .btn-close-reader:hover {
-      background: rgba(239, 68, 68, 0.2);
-      color: #fca5a5;
-    }
-
-    .reader-title-box h3 {
-      font-size: 1rem;
-      font-weight: 800;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 260px;
-    }
-
-    .reader-title-box span {
-      font-size: 0.72rem;
-      color: var(--accent);
-      display: block;
-    }
-
-    /* Version Navigator Tabs inside Modal */
-    .version-navigator-bar {
-      background: rgba(10, 15, 28, 0.85);
-      border-bottom: 1px solid var(--card-border);
-      padding: 10px 18px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      overflow-x: auto;
-      flex-shrink: 0;
-      scrollbar-width: none;
-    }
-
-    .version-navigator-bar::-webkit-scrollbar {
-      display: none;
-    }
-
-    .version-tab-btn {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 0.76rem;
-      font-weight: 700;
-      font-family: 'Fira Code', monospace;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-
-    .version-tab-btn.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #ffffff;
-      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
-    }
-
-    /* Scrollable Caption Body */
-    .reader-content-body {
-      padding: 22px 20px;
-      overflow-y: auto;
-      flex: 1;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .caption-meta-summary {
-      background: rgba(255, 255, 255, 0.025);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 12px 16px;
-      margin-bottom: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.78rem;
-    }
-
-    .formatted-caption-text {
-      font-size: 1.05rem;
-      line-height: 1.85;
-      color: #f1f5f9;
-      white-space: pre-wrap;
-      word-break: break-word;
-      letter-spacing: 0.2px;
-      padding-bottom: 20px;
-      user-select: all;
-    }
-
-    /* Reader Fixed Action Bar */
-    .reader-footer-actions {
-      background: rgba(13, 19, 36, 0.95);
-      border-top: 1px solid var(--card-border);
-      padding: 14px 18px;
-      display: flex;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-
-    .btn-copy-modal-main {
-      width: 100%;
-      background: linear-gradient(135deg, var(--accent), #0284c7);
-      color: #ffffff;
-      border: none;
-      padding: 13px 16px;
-      border-radius: 12px;
-      font-size: 0.92rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      box-shadow: 0 4px 16px var(--accent-glow);
-      transition: all 0.2s;
-    }
-
-    .btn-copy-modal-main:hover {
-      background: linear-gradient(135deg, #0891b2, #0369a1);
-    }
-
-    /* ==========================================================================
-       6. TOAST NOTIFICATION
-       ========================================================================== */
-    .toast-msg {
-      position: fixed;
-      bottom: 24px;
-      right: 20px;
-      background: #1e1b4b;
-      border: 1px solid #6366f1;
-      color: #ffffff;
-      padding: 12px 20px;
-      border-radius: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      z-index: 2000;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: none;
-    }
-
-    .toast-msg.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .toast-msg i {
-      color: var(--accent);
-      font-size: 1.1rem;
-    }
+      --font-main: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
+    body { background-color: var(--bg-base); min-height: 100vh; color: var(--text-main); display: flex; flex-direction: column; overflow-x: hidden; position: relative; }
+
+    #authGuard { position: fixed; inset: 0; background: #050811; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+    .guard-spinner { width: 46px; height: 46px; border: 3px solid rgba(255, 255, 255, 0.08); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .bg-mesh { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .ambient-orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.65; pointer-events: none; }
+    .orb-1 { width: 320px; height: 320px; background: radial-gradient(circle, rgba(6, 182, 212, 0.28), transparent 70%); top: -40px; left: 15%; }
+    .orb-2 { width: 340px; height: 340px; background: radial-gradient(circle, rgba(99, 102, 241, 0.22), transparent 70%); bottom: 5%; right: 10%; }
+
+    .top-appbar { position: sticky; top: 0; z-index: 100; background: rgba(8, 12, 24, 0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--card-border); padding: 14px 18px; }
+    .appbar-inner { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .left-controls { display: flex; align-items: center; gap: 12px; }
+    .btn-back-home { width: 40px; height: 40px; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--card-border); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-main); text-decoration: none; font-size: 1rem; }
+
+    .brand-meta h1 { font-size: 1.15rem; font-weight: 800; text-transform: uppercase; background: linear-gradient(135deg, #ffffff 30%, #67e8f9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .brand-meta span { font-size: 0.74rem; color: var(--primary-light); font-weight: 600; }
+    .header-badge-count { background: var(--cyan-badge); border: 1px solid rgba(6, 182, 212, 0.35); color: #67e8f9; font-size: 0.76rem; font-weight: 700; padding: 5px 12px; border-radius: 20px; }
+
+    .content-wrapper { max-width: 1000px; width: 100%; margin: 0 auto; padding: 18px 16px 60px 16px; flex: 1; position: relative; z-index: 10; }
+    .search-panel { position: relative; margin-bottom: 20px; }
+    .search-panel i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+    .search-input { width: 100%; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px 40px 12px 44px; color: #ffffff; font-size: 0.9rem; outline: none; }
+
+    .caption-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
+    .caption-compact-card { background: var(--card-bg); border: 1px solid var(--card-border); backdrop-filter: blur(18px); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .serial-badge { font-size: 0.74rem; font-weight: 700; font-family: 'Fira Code', monospace; color: var(--primary-light); background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.3); padding: 2px 8px; border-radius: 6px; }
+    .version-tag-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 700; color: #6ee7b7; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25); padding: 2px 7px; border-radius: 6px; }
+
+    .caption-preview-box { font-size: 0.9rem; color: #cbd5e1; line-height: 1.65; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; background: rgba(10, 15, 29, 0.65); border-left: 3px solid var(--primary); border-radius: 0 8px 8px 0; padding: 10px 12px; }
+    .card-bottom-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; color: var(--text-dim); margin-bottom: 12px; }
+    
+    .card-action-bar { display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+    .btn-card { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); color: var(--text-main); padding: 9px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: 1; }
+    .btn-primary-view { background: linear-gradient(135deg, var(--accent), #4f46e5); border: none; color: #ffffff; }
+    .btn-copy-card { background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.35); color: #67e8f9; }
+
+    .reader-modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(14px); z-index: 1000; display: none; align-items: flex-end; justify-content: center; }
+    .reader-modal-sheet { background: var(--reader-bg); border: 1px solid var(--card-border); border-radius: 24px 24px 0 0; width: 100%; max-width: 760px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+    .reader-header { background: rgba(13, 19, 36, 0.95); border-bottom: 1px solid var(--card-border); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .version-navigator-bar { background: rgba(10, 15, 28, 0.85); border-bottom: 1px solid var(--card-border); padding: 10px 18px; display: flex; align-items: center; gap: 8px; overflow-x: auto; }
+    .version-tab-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); color: var(--text-muted); padding: 6px 14px; border-radius: 8px; font-size: 0.76rem; font-weight: 700; font-family: 'Fira Code', monospace; cursor: pointer; white-space: nowrap; }
+    .version-tab-btn.active { background: var(--primary); border-color: var(--primary); color: #000000; font-weight: 800; }
+    
+    .reader-content-body { padding: 22px 20px; overflow-y: auto; flex: 1; }
+    .formatted-caption-text { font-size: 1.05rem; line-height: 1.85; color: #f1f5f9; white-space: pre-wrap; word-break: break-word; user-select: all; }
+    .reader-footer-actions { background: rgba(13, 19, 36, 0.95); border-top: 1px solid var(--card-border); padding: 14px 18px; display: flex; }
+    .btn-copy-modal-main { width: 100%; background: linear-gradient(135deg, var(--primary), #0284c7); color: #ffffff; border: none; padding: 13px 16px; border-radius: 12px; font-size: 0.92rem; font-weight: 700; cursor: pointer; }
+
+    .toast-msg { position: fixed; bottom: 24px; right: 20px; background: #1e1b4b; border: 1px solid #6366f1; color: #ffffff; padding: 12px 20px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); display: flex; align-items: center; gap: 10px; font-size: 0.88rem; font-weight: 600; z-index: 2000; opacity: 0; transform: translateY(20px); transition: 0.3s; pointer-events: none; }
+    .toast-msg.show { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
 
-  <!-- Auth Gate Shield -->
   <div id="authGuard">
     <div class="guard-spinner"></div>
     <p style="color: #94a3b8; font-size: 0.88rem;">Connecting Library... • ক্যাপশন লোড হচ্ছে...</p>
   </div>
 
-  <!-- Ambient Glowing Mesh -->
   <div class="bg-mesh">
     <div class="ambient-orb orb-1"></div>
     <div class="ambient-orb orb-2"></div>
   </div>
 
-  <!-- Top App Navigation Bar -->
   <header class="top-appbar">
     <div class="appbar-inner">
       <div class="left-controls">
@@ -693,7 +115,6 @@
           <i class="fa-solid fa-arrow-left"></i>
         </a>
         <div class="brand-meta">
-          <!-- Dynamic Website/Group Name loaded live from Firebase -->
           <h1 id="groupTitle">SS TIME OFFICIAL</h1>
           <span>Caption Library • ক্যাপশন লাইব্রেরি</span>
         </div>
@@ -706,96 +127,46 @@
     </div>
   </header>
 
-  <!-- Main Content Layout -->
   <main class="content-wrapper">
-
-    <!-- Search Input -->
     <div class="search-panel">
       <i class="fa-solid fa-magnifying-glass"></i>
-      <input 
-        type="text" 
-        id="captionSearchInput" 
-        class="search-input" 
-        placeholder="Search caption text, title, serial #1... / ক্যাপশন অনুসন্ধান..." 
-      />
-      <button id="clearSearchBtn" class="search-clear-btn">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
+      <input type="text" id="captionSearchInput" class="search-input" placeholder="Search caption text, serial #1... / ক্যাপশন অনুসন্ধান..." />
     </div>
 
-    <!-- Compact Cards Grid -->
-    <section class="caption-grid" id="captionGridContainer">
-      <!-- Dynamic Caption Cards Rendered Here -->
-    </section>
-
+    <section class="caption-grid" id="captionGridContainer"></section>
   </main>
 
-  <!-- Full Mobile Caption View (Modal Drawer) -->
+  <!-- Full Mobile Caption Modal -->
   <div id="readerModal" class="reader-modal-overlay">
     <div class="reader-modal-sheet">
-      
-      <!-- Sticky Reader Header -->
       <div class="reader-header">
-        <div class="reader-header-left">
-          <button class="btn-close-reader" id="btnCloseReader" title="Close">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-          <div class="reader-title-box">
-            <h3 id="readerCaptionTitle">Caption Title</h3>
-            <span id="readerSubtitle">Full View</span>
-          </div>
+        <div>
+          <h3 id="readerCaptionTitle" style="color:#fff;">Caption</h3>
+          <span id="readerSubtitle" style="font-size:0.75rem; color:var(--primary-light);">Full View</span>
         </div>
-        <span class="serial-badge" id="readerSerialBadge">#1</span>
+        <button style="background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;" onclick="closeModal()">&times;</button>
       </div>
 
-      <!-- Version Navigator Tabs (Switch without database alteration) -->
-      <div class="version-navigator-bar" id="readerVersionBar">
-        <!-- Dynamic Version Chips -->
-      </div>
+      <div class="version-navigator-bar" id="readerVersionBar"></div>
 
-      <!-- Scrollable Caption Text -->
       <div class="reader-content-body">
-        
-        <div class="caption-meta-summary">
-          <div>
-            <strong style="color:var(--text-dim);">VERSION: </strong>
-            <span id="readerSummaryVersion" style="color: #6ee7b7; font-weight:700;">Latest (v3)</span>
-          </div>
-          <div>
-            <strong style="color:var(--text-dim);">UPDATED: </strong>
-            <span id="readerSummaryDate">Today</span>
-          </div>
-        </div>
-
-        <div class="formatted-caption-text" id="readerCaptionBody">
-          <!-- Full caption text with emojis, line breaks, hashtags -->
-        </div>
-
+        <div class="formatted-caption-text" id="readerCaptionBody"></div>
       </div>
 
-      <!-- Sticky Action Bottom Bar -->
       <div class="reader-footer-actions">
         <button class="btn-copy-modal-main" id="btnCopyModalCaption">
           <i class="fa-regular fa-clipboard"></i> Copy Caption / ক্যাপশন কপি করুন
         </button>
       </div>
-
     </div>
   </div>
 
-  <!-- Toast Notification -->
   <div id="toast" class="toast-msg">
     <i class="fa-solid fa-circle-check"></i>
-    <span id="toastText">Caption copied ✓ • ক্যাপশন কপি হয়েছে ✓</span>
+    <span id="toastText">Caption copied ✓</span>
   </div>
 
-  <!-- ==========================================================================
-       6. JAVASCRIPT: REALTIME LOGIC & VERSION CONTROLLER
-       ========================================================================== -->
   <script>
-    // --------------------------------------------------------------------------
-    // A. FIREBASE CONFIGURATION
-    // --------------------------------------------------------------------------
     const firebaseConfig = {
       apiKey: "AIzaSyCjh-etprmOrbu7UMYNXXHdNXgiVPCxywY",
       authDomain: "alifi-1e15c.firebaseapp.com",
@@ -806,263 +177,184 @@
       appId: "1:928673744418:web:997a8db27cae1fa15c6c7b"
     };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // DOM Elements
     const authGuard = document.getElementById('authGuard');
     const groupTitle = document.getElementById('groupTitle');
     const totalCaptionsCount = document.getElementById('totalCaptionsCount');
     const captionSearchInput = document.getElementById('captionSearchInput');
-    const clearSearchBtn = document.getElementById('clearSearchBtn');
     const captionGridContainer = document.getElementById('captionGridContainer');
-
-    // Reader Modal Elements
     const readerModal = document.getElementById('readerModal');
-    const btnCloseReader = document.getElementById('btnCloseReader');
     const readerCaptionTitle = document.getElementById('readerCaptionTitle');
-    const readerSubtitle = document.getElementById('readerSubtitle');
-    const readerSerialBadge = document.getElementById('readerSerialBadge');
     const readerVersionBar = document.getElementById('readerVersionBar');
-    const readerSummaryVersion = document.getElementById('readerSummaryVersion');
-    const readerSummaryDate = document.getElementById('readerSummaryDate');
     const readerCaptionBody = document.getElementById('readerCaptionBody');
     const btnCopyModalCaption = document.getElementById('btnCopyModalCaption');
-
-    // Toast
     const toast = document.getElementById('toast');
     const toastText = document.getElementById('toastText');
 
-    // State Variables
-    let rawCaptionData = [];
     let groupedCaptions = [];
     let currentSearchTerm = '';
     let currentReadingGroup = null;
     let activeVersionIndex = 0;
 
-    // --------------------------------------------------------------------------
-    // B. AUTHENTICATION PROTECTION
-    // --------------------------------------------------------------------------
-    auth.onAuthStateChanged(async (user) => {
+    auth.onAuthStateChanged(async user => {
       if (!user) {
         window.location.href = 'index.html';
         return;
       }
-
-      try {
-        const userSnap = await db.ref(`users/${user.uid}`).once('value');
-        if (!userSnap.exists()) {
-          await auth.signOut();
-          window.location.href = 'index.html';
-          return;
-        }
-
-        const userData = userSnap.val();
-        if (userData.status === 'blocked' || userData.isBlocked === true) {
-          await auth.signOut();
-          window.location.href = 'index.html';
-          return;
-        }
-
-        authGuard.style.display = 'none';
-        initRealtimeSync();
-
-      } catch (err) {
-        console.error("Auth guard error:", err);
-        authGuard.style.display = 'none';
-      }
+      authGuard.style.display = 'none';
+      initRealtime();
     });
 
-    // --------------------------------------------------------------------------
-    // C. REALTIME FIREBASE DATABASE SYNC
-    // --------------------------------------------------------------------------
-    function initRealtimeSync() {
-      // 1. Dynamic Group Title
-      db.ref('settings/groupName').on('value', (snap) => {
-        const titleVal = snap.val();
-        if (titleVal && typeof titleVal === 'string' && titleVal.trim().length > 0) {
-          groupTitle.textContent = titleVal.trim();
-          document.title = `${titleVal.trim()} | Caption Library`;
-        }
+    function initRealtime() {
+      db.ref('settings/groupName').on('value', snap => {
+        if (snap.val()) groupTitle.textContent = snap.val().trim();
       });
 
-      // 2. Sync Captions from contents and captions nodes
-      db.ref('contents').on('value', (snapContents) => {
-        const contentsObj = snapContents.val() || {};
-
-        db.ref('captions').on('value', (snapCaptions) => {
-          const captionsObj = snapCaptions.val() || {};
-          
-          processAndGroupCaptions({ ...contentsObj, ...captionsObj });
-          renderCaptionList();
+      // Synchronize directly from captions & contents nodes
+      db.ref('captions').on('value', snapCaptions => {
+        const captionsObj = snapCaptions.val() || {};
+        db.ref('contents').on('value', snapContents => {
+          const contentsObj = snapContents.val() || {};
+          processMergedCaptions({ ...contentsObj, ...captionsObj });
+          renderCaptions();
         });
       });
     }
 
-    // --------------------------------------------------------------------------
-    // D. MULTI-VERSION CAPTION GROUPING & AUTOMATIC SERIAL NUMBERING
-    // --------------------------------------------------------------------------
-    function processAndGroupCaptions(mergedObj) {
-      rawCaptionData = [];
+    function processMergedCaptions(mergedObj) {
+      const rawList = [];
 
       Object.keys(mergedObj).forEach(key => {
         const item = mergedObj[key];
         if (!item || typeof item !== 'object') return;
 
-        // Skip unpublished or deleted entries
-        const isHidden = item.status === 'unpublished' || item.status === 'deleted' || item.isPublished === false;
-        if (isHidden) return;
+        // Check if published
+        const isPublished = (item.status === 'published' || item.published === true) && item.status !== 'unpublished' && item.published !== false;
+        if (!isPublished) return;
 
-        // Match items that are Captions
-        const category = (item.category || item.type || '').toLowerCase();
-        const isCaption = category.includes('caption') || item.caption;
-
-        if (!isCaption && !category.includes('bengali text') && !category.includes('short text')) {
-          return;
+        // Parse versions list
+        const vList = [];
+        if (item.versions && typeof item.versions === 'object') {
+          Object.keys(item.versions).forEach(vKey => {
+            const v = item.versions[vKey];
+            if (v && (v.published !== false)) {
+              const textVal = v.text || v.caption || v.content || v.details || '';
+              if (textVal.trim()) {
+                vList.push({
+                  versionName: v.version || 'Version 1',
+                  text: textVal,
+                  timestamp: v.updatedAt || v.createdAt || item.updatedAt || Date.now()
+                });
+              }
+            }
+          });
         }
 
-        const captionBody = item.content || item.caption || item.details || item.message || '';
-        if (!captionBody.trim()) return;
+        // Direct text extraction if no nested versions
+        const directText = item.text || item.caption || item.content || item.details || item.latestText || (vList[0] ? vList[0].text : '');
+        if (!directText.trim()) return;
 
-        const title = item.title || item.name || '';
+        if (vList.length === 0) {
+          vList.push({
+            versionName: item.currentVersion || item.version || 'Version 1',
+            text: directText,
+            timestamp: item.updatedAt || item.createdAt || Date.now()
+          });
+        }
 
-        rawCaptionData.push({
+        vList.sort((a, b) => b.timestamp - a.timestamp);
+
+        rawList.push({
           id: key,
-          title: title.trim(),
-          content: captionBody,
-          versionLabel: item.version || item.ver || 'v1.0',
-          versionNumber: parseVersionNumber(item.version || item.ver),
+          serial: item.serial || 1,
+          title: item.title || `Caption #${item.serial || 1}`,
+          versions: vList,
+          latestVersion: vList[0],
           timestamp: item.updatedAt || item.createdAt || Date.now()
         });
       });
 
-      // Group versions belonging to the same Caption (by title or snippet)
-      const groupsMap = {};
-
-      rawCaptionData.forEach(item => {
-        // Group key: Title if exists, otherwise first 25 characters of content
-        const baseKey = item.title ? item.title.toLowerCase() : item.content.trim().slice(0, 25).toLowerCase();
-        const groupKey = `caption__${baseKey}`;
-
-        if (!groupsMap[groupKey]) {
-          groupsMap[groupKey] = {
-            groupKey: groupKey,
+      // Group by ID or unique snippet so duplicates merge
+      const groups = {};
+      rawList.forEach(item => {
+        const gKey = item.id;
+        if (!groups[gKey]) {
+          groups[gKey] = {
+            groupKey: gKey,
+            serial: item.serial,
             title: item.title,
-            earliestTime: item.timestamp,
-            latestTime: item.timestamp,
-            versions: []
+            versions: [...item.versions],
+            latestTime: item.timestamp
           };
+        } else {
+          groups[gKey].versions.push(...item.versions);
+          if (item.timestamp > groups[gKey].latestTime) groups[gKey].latestTime = item.timestamp;
         }
-
-        if (item.title && !groupsMap[groupKey].title) {
-          groupsMap[groupKey].title = item.title;
-        }
-
-        if (item.timestamp < groupsMap[groupKey].earliestTime) {
-          groupsMap[groupKey].earliestTime = item.timestamp;
-        }
-        if (item.timestamp > groupsMap[groupKey].latestTime) {
-          groupsMap[groupKey].latestTime = item.timestamp;
-        }
-
-        groupsMap[groupKey].versions.push(item);
       });
 
-      // Convert to array and assign Automatic Sequential Serial Numbers (#1, #2, #3...)
-      groupedCaptions = Object.values(groupsMap).sort((a, b) => a.earliestTime - b.earliestTime);
+      groupedCaptions = Object.values(groups).sort((a, b) => a.serial - b.serial);
 
-      groupedCaptions.forEach((group, index) => {
-        group.autoSerial = index + 1; // Automatic sequential serial #1, #2, #3
-
-        // Sort versions descending (latest first)
-        group.versions.sort((a, b) => {
-          if (b.versionNumber !== a.versionNumber) {
-            return b.versionNumber - a.versionNumber;
-          }
-          return b.timestamp - a.timestamp;
-        });
-
-        // Set pointer to the latest version
-        group.latestVersion = group.versions[0];
+      groupedCaptions.forEach((g, idx) => {
+        g.autoSerial = g.serial || (idx + 1);
+        g.versions.sort((a, b) => b.timestamp - a.timestamp);
+        g.latestVersion = g.versions[0];
       });
 
       totalCaptionsCount.textContent = `${groupedCaptions.length} Total`;
     }
 
-    function parseVersionNumber(verStr) {
-      if (!verStr) return 1;
-      const match = verStr.toString().match(/\d+(\.\d+)?/);
-      return match ? parseFloat(match[0]) : 1;
-    }
-
-    // --------------------------------------------------------------------------
-    // E. RENDER COMPACT CAPTION CARDS
-    // --------------------------------------------------------------------------
-    function renderCaptionList() {
+    function renderCaptions() {
       const q = currentSearchTerm.toLowerCase().trim();
 
-      const filtered = groupedCaptions.filter(group => {
+      const filtered = groupedCaptions.filter(g => {
         if (q) {
-          const serialMatch = `#${group.autoSerial}`.includes(q) || group.autoSerial.toString() === q;
-          const titleMatch = group.title && group.title.toLowerCase().includes(q);
-          const textMatch = group.versions.some(v => v.content.toLowerCase().includes(q));
-
-          if (!serialMatch && !titleMatch && !textMatch) {
-            return false;
-          }
+          return `#${g.autoSerial}`.includes(q) || 
+                 g.versions.some(v => v.text.toLowerCase().includes(q)) || 
+                 (g.title && g.title.toLowerCase().includes(q));
         }
         return true;
       });
 
       if (filtered.length === 0) {
         captionGridContainer.innerHTML = `
-          <div class="empty-placeholder">
-            <i class="fa-solid fa-quote-right"></i>
+          <div style="grid-column:1/-1;text-align:center;padding:50px;color:#94a3b8;">
+            <i class="fa-solid fa-quote-right" style="font-size:2rem;margin-bottom:10px;"></i>
             <p>কোনো Caption পাওয়া যায়নি • No Caption found</p>
           </div>
         `;
         return;
       }
 
-      captionGridContainer.innerHTML = filtered.map(group => {
-        const latest = group.latestVersion;
-        const formattedDate = new Date(group.latestTime).toLocaleDateString(undefined, {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric'
-        });
+      captionGridContainer.innerHTML = filtered.map(g => {
+        const latest = g.latestVersion;
+        const dateStr = new Date(g.latestTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 
         return `
           <div class="caption-compact-card">
             <div>
               <div class="card-top-row">
-                <span class="serial-badge">#${group.autoSerial}</span>
+                <span class="serial-badge">#${g.autoSerial}</span>
                 <div class="version-tag-pill">
-                  <i class="fa-solid fa-sparkles"></i> Latest (${escapeHTML(latest.versionLabel)})
-                  ${group.versions.length > 1 ? `<span style="color:#94a3b8; font-size:0.65rem;">(+${group.versions.length - 1} old)</span>` : ''}
+                  <i class="fa-solid fa-sparkles"></i> Latest (${escapeHTML(latest.versionName)})
                 </div>
               </div>
 
-              ${group.title ? `<h4 class="card-caption-title">${escapeHTML(group.title)}</h4>` : ''}
-
-              <div class="caption-preview-box">
-                ${escapeHTML(latest.content)}
-              </div>
+              <div class="caption-preview-box">${escapeHTML(latest.text)}</div>
 
               <div class="card-bottom-meta">
-                <span><i class="fa-regular fa-clock"></i> ${formattedDate}</span>
-                <span>${group.versions.length} Version${group.versions.length > 1 ? 's' : ''}</span>
+                <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                <span>${g.versions.length} Version${g.versions.length > 1 ? 's' : ''}</span>
               </div>
             </div>
 
             <div class="card-action-bar">
-              <button class="btn-card btn-primary-view" onclick="openCaptionReader('${group.groupKey}')">
-                <i class="fa-solid fa-eye"></i> View / বিস্তারিত
+              <button class="btn-card btn-primary-view" onclick="openReader('${g.groupKey}')">
+                <i class="fa-solid fa-eye"></i> View
               </button>
-              <button class="btn-card btn-copy-card" onclick="copyCaptionDirect('${group.groupKey}')">
+              <button class="btn-card btn-copy-card" onclick="copyDirect('${g.groupKey}')">
                 <i class="fa-regular fa-copy"></i> Copy
               </button>
             </div>
@@ -1071,142 +363,81 @@
       }).join('');
     }
 
-    // --------------------------------------------------------------------------
-    // F. FULL MOBILE READING VIEW & IN-VIEW VERSION SWITCHER
-    // --------------------------------------------------------------------------
-    window.openCaptionReader = function(groupKey) {
-      const group = groupedCaptions.find(g => g.groupKey === groupKey);
-      if (!group) return;
+    window.openReader = function(key) {
+      const g = groupedCaptions.find(item => item.groupKey === key);
+      if (!g) return;
 
-      currentReadingGroup = group;
-      activeVersionIndex = 0; // Default to Latest
+      currentReadingGroup = g;
+      activeVersionIndex = 0;
 
-      readerCaptionTitle.textContent = group.title || `Caption #${group.autoSerial}`;
-      readerSubtitle.textContent = `${group.versions.length} Version${group.versions.length > 1 ? 's' : ''} available`;
-      readerSerialBadge.textContent = `#${group.autoSerial}`;
-
-      renderReaderVersionTabs();
-      renderActiveCaptionBody();
+      readerCaptionTitle.textContent = `Caption #${g.autoSerial}`;
+      renderVersionTabs();
+      renderActiveText();
 
       readerModal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
     };
 
-    function renderReaderVersionTabs() {
+    function renderVersionTabs() {
       if (!currentReadingGroup) return;
-
-      readerVersionBar.innerHTML = currentReadingGroup.versions.map((ver, idx) => {
-        const isLatest = idx === 0;
-        const label = isLatest ? `Latest (${ver.versionLabel})` : `Version ${ver.versionLabel}`;
-        return `
-          <button class="version-tab-btn ${idx === activeVersionIndex ? 'active' : ''}" onclick="switchReaderVersion(${idx})">
-            ${isLatest ? '<i class="fa-solid fa-bolt"></i> ' : ''}${escapeHTML(label)}
-          </button>
-        `;
-      }).join('');
+      readerVersionBar.innerHTML = currentReadingGroup.versions.map((v, i) => `
+        <button class="version-tab-btn ${i === activeVersionIndex ? 'active' : ''}" onclick="switchVer(${i})">
+          ${i === 0 ? 'Latest ' : ''}(${escapeHTML(v.versionName)})
+        </button>
+      `).join('');
     }
 
-    window.switchReaderVersion = function(index) {
-      activeVersionIndex = index;
-      renderReaderVersionTabs();
-      renderActiveCaptionBody();
+    window.switchVer = function(idx) {
+      activeVersionIndex = idx;
+      renderVersionTabs();
+      renderActiveText();
     };
 
-    function renderActiveCaptionBody() {
+    function renderActiveText() {
       if (!currentReadingGroup) return;
-      const currentVer = currentReadingGroup.versions[activeVersionIndex];
-      const isLatest = activeVersionIndex === 0;
-
-      readerSummaryVersion.textContent = isLatest ? `Latest (${currentVer.versionLabel})` : `Version ${currentVer.versionLabel} (Old)`;
-      readerSummaryDate.textContent = new Date(currentVer.timestamp).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-      });
-
-      // Preserve line breaks, paragraphs, emojis, hashtags
-      readerCaptionBody.textContent = currentVer.content;
+      readerCaptionBody.textContent = currentReadingGroup.versions[activeVersionIndex].text;
     }
 
-    // Close Modal Reader
-    btnCloseReader.addEventListener('click', () => {
+    function closeModal() {
       readerModal.style.display = 'none';
-      document.body.style.overflow = 'auto';
       currentReadingGroup = null;
-    });
+    }
 
-    readerModal.addEventListener('click', (e) => {
-      if (e.target === readerModal) {
-        readerModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-        currentReadingGroup = null;
-      }
-    });
-
-    // --------------------------------------------------------------------------
-    // G. COPY SYSTEM & CLIPBOARD
-    // --------------------------------------------------------------------------
-    window.copyCaptionDirect = function(groupKey) {
-      const group = groupedCaptions.find(g => g.groupKey === groupKey);
-      if (!group) return;
-      const textToCopy = group.latestVersion.content;
-      copyTextToClipboard(textToCopy, 'Caption copied ✓ • ক্যাপশন কপি হয়েছে ✓');
+    window.copyDirect = function(key) {
+      const g = groupedCaptions.find(item => item.groupKey === key);
+      if (!g) return;
+      copyClipboard(g.latestVersion.text, '✓ Caption copied • ক্যাপশন কপি হয়েছে');
     };
 
-    btnCopyModalCaption.addEventListener('click', () => {
+    btnCopyModalCaption.onclick = () => {
       if (!currentReadingGroup) return;
-      const currentVer = currentReadingGroup.versions[activeVersionIndex];
-      copyTextToClipboard(currentVer.content, 'Caption copied ✓ • ক্যাপশন কপি হয়েছে ✓');
-    });
+      copyClipboard(currentReadingGroup.versions[activeVersionIndex].text, '✓ Caption copied • ক্যাপশন কপি হয়েছে');
+    };
 
-    function copyTextToClipboard(text, successMessage) {
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(() => {
-        showToast(successMessage);
-      }).catch(() => {
+    function copyClipboard(text, msg) {
+      navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(() => {
         const ta = document.createElement('textarea');
         ta.value = text;
         document.body.appendChild(ta);
         ta.select();
         document.execCommand('copy');
         document.body.removeChild(ta);
-        showToast(successMessage);
+        showToast(msg);
       });
     }
+
+    captionSearchInput.oninput = e => {
+      currentSearchTerm = e.target.value;
+      renderCaptions();
+    };
 
     function showToast(msg) {
       toastText.textContent = msg;
       toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2400);
+      setTimeout(() => toast.classList.remove('show'), 2400);
     }
 
-    // --------------------------------------------------------------------------
-    // H. SEARCH LISTENERS
-    // --------------------------------------------------------------------------
-    captionSearchInput.addEventListener('input', (e) => {
-      currentSearchTerm = e.target.value;
-      clearSearchBtn.style.display = currentSearchTerm ? 'block' : 'none';
-      renderCaptionList();
-    });
-
-    clearSearchBtn.addEventListener('click', () => {
-      captionSearchInput.value = '';
-      currentSearchTerm = '';
-      clearSearchBtn.style.display = 'none';
-      renderCaptionList();
-      captionSearchInput.focus();
-    });
-
-    function escapeHTML(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    function escapeHTML(s) {
+      return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
   </script>
 </body>
