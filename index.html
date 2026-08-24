@@ -1,423 +1,648 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hosting List - Secure Portal Login</title>
-  
-  <!-- Google Fonts: Inter & Hind Siliguri for Bengali -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#060913" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Portal Access | SS TIME OFFICIAL</title>
 
-  <!-- Firebase App & Services (Compat SDK for single-file browser runtime) -->
+  <!-- Google Fonts: Hind Siliguri (Bengali) & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+  <!-- Firebase Compat SDKs (Production Optimized) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
+    /* ==========================================================================
+       1. LUXURY MODERN CSS VARIABLES & RESET
+       ========================================================================== */
     :root {
-      --bg-gradient: radial-gradient(circle at 10% 20%, #0d1527 0%, #070a12 90%);
-      --card-bg: rgba(18, 26, 46, 0.75);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
+      --bg-base: #050811;
+      --card-bg: rgba(13, 19, 36, 0.68);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --card-glow: rgba(99, 102, 241, 0.15);
+      --primary: #6366f1;
+      --primary-light: #818cf8;
       --accent: #06b6d4;
+      --accent-glow: rgba(6, 182, 212, 0.35);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --input-bg: rgba(10, 15, 29, 0.8);
-      --input-border: rgba(255, 255, 255, 0.12);
+      --text-dim: #64748b;
+      --input-bg: rgba(10, 15, 28, 0.75);
+      --input-border: rgba(255, 255, 255, 0.1);
       --input-focus: #6366f1;
-      --error-bg: rgba(239, 68, 68, 0.15);
-      --error-border: rgba(239, 68, 68, 0.4);
-      --error-text: #fca5a5;
-      --success-bg: rgba(34, 197, 94, 0.15);
-      --success-border: rgba(34, 197, 94, 0.4);
-      --success-text: #86efac;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --danger-border: rgba(239, 68, 68, 0.35);
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.12);
+      --success-border: rgba(16, 185, 129, 0.35);
+      --font-family: 'Plus Jakarta Sans', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', 'Hind Siliguri', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      font-family: var(--font-family);
     }
 
     body {
-      background: var(--bg-gradient);
+      background-color: var(--bg-base);
       min-height: 100vh;
+      min-height: -webkit-fill-available;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 20px;
+      padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom)) 20px;
       color: var(--text-main);
       overflow-x: hidden;
       position: relative;
     }
 
-    /* Ambient background glowing orbs */
-    .glow-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(120px);
+    /* ==========================================================================
+       2. CSS-ONLY AMBIENT BACKGROUND GRAPHICS & PARTICLES
+       ========================================================================== */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
       z-index: 0;
       pointer-events: none;
-    }
-    .glow-orb-1 {
-      width: 350px;
-      height: 350px;
-      background: rgba(79, 70, 229, 0.25);
-      top: 10%;
-      left: 15%;
-    }
-    .glow-orb-2 {
-      width: 300px;
-      height: 300px;
-      background: rgba(6, 182, 212, 0.2);
-      bottom: 10%;
-      right: 15%;
+      overflow: hidden;
+      background: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.6) 0%, transparent 80%);
     }
 
-    .login-container {
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+      opacity: 0.7;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.35), transparent 70%);
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .orb-2 {
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.25), transparent 70%);
+      bottom: -40px;
+      right: 5%;
+      animation-duration: 22s;
+    }
+
+    .orb-3 {
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.2), transparent 70%);
+      bottom: 25%;
+      left: -40px;
+      animation-duration: 25s;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(30px) scale(1.08); }
+      100% { transform: translateY(-20px) scale(0.95); }
+    }
+
+    /* Subtle Floating CSS Dots */
+    .bg-particles {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+        radial-gradient(rgba(99, 102, 241, 0.12) 1px, transparent 1px);
+      background-size: 40px 40px, 80px 80px;
+      background-position: 0 0, 20px 20px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       3. MAIN CONTAINER & TOP DYNAMIC HEADER
+       ========================================================================== */
+    .app-wrapper {
       position: relative;
-      z-index: 1;
+      z-index: 10;
       width: 100%;
-      max-width: 440px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 20px;
-      padding: 40px 32px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6),
-                  0 0 0 1px rgba(255, 255, 255, 0.05);
-      animation: fadeIn 0.6s ease-out;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: entranceFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes entranceFade {
+      from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
-    .brand-header {
+    .header-area {
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 26px;
+      width: 100%;
     }
 
-    .brand-icon {
-      width: 58px;
-      height: 58px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      border-radius: 16px;
-      display: inline-flex;
+    /* Premium Icon Badge */
+    .brand-emblem {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 16px auto;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.15));
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: 28px;
       color: #ffffff;
-      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.35);
-      margin-bottom: 16px;
+      box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.6),
+                  0 0 24px rgba(99, 102, 241, 0.3),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      position: relative;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform 0.4s ease;
     }
 
-    .brand-title {
-      font-size: 1.5rem;
-      font-weight: 700;
+    .brand-emblem i {
+      background: linear-gradient(135deg, #ffffff 30%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Dynamic Group Title with Shimmer Effect */
+    .dynamic-title {
+      font-size: 1.65rem;
+      font-weight: 800;
       letter-spacing: -0.5px;
-      color: #ffffff;
+      line-height: 1.25;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #818cf8 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: titleShimmer 6s linear infinite;
+      word-break: break-word;
+      padding: 0 4px;
     }
 
-    .brand-subtitle {
-      font-size: 0.88rem;
+    @keyframes titleShimmer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .header-sub {
+      font-size: 0.86rem;
       color: var(--text-muted);
       margin-top: 6px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
-    .bilingual-sub {
-      display: block;
-      font-size: 0.8rem;
-      color: #64748b;
+    .bilingual-tag {
+      font-size: 0.78rem;
+      color: var(--text-dim);
       margin-top: 2px;
+      font-weight: 400;
     }
 
-    /* Notification/Alert Box */
-    .alert-box {
+    /* ==========================================================================
+       4. LUXURY GLASSMORPHISM LOGIN CARD
+       ========================================================================== */
+    .login-card {
+      width: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 32px 24px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7),
+                  0 0 0 1px rgba(255, 255, 255, 0.05),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Card Top Neon Glow Line */
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 1.5px;
+      background: linear-gradient(90deg, transparent, var(--primary-light), var(--accent), transparent);
+    }
+
+    /* Error Shake Animation */
+    .shake-card {
+      animation: cardShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    @keyframes cardShake {
+      10%, 90% { transform: translate3d(-2px, 0, 0); }
+      20%, 80% { transform: translate3d(4px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    /* Notification Alert Box */
+    .alert-banner {
       display: none;
       padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 0.86rem;
-      line-height: 1.4;
-      margin-bottom: 22px;
-      border: 1px solid transparent;
-      animation: slideDown 0.3s ease-out;
+      border-radius: 14px;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      margin-bottom: 20px;
+      animation: alertSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes slideDown {
+    @keyframes alertSlide {
       from { opacity: 0; transform: translateY(-8px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .alert-box.error {
-      background: var(--error-bg);
-      border-color: var(--error-border);
-      color: var(--error-text);
-    }
-
-    .alert-box.success {
-      background: var(--success-bg);
-      border-color: var(--success-border);
-      color: var(--success-text);
-    }
-
-    .alert-content {
+    .alert-banner.error {
       display: flex;
-      align-items: flex-start;
-      gap: 10px;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      color: #fca5a5;
     }
 
-    .alert-content i {
-      margin-top: 2px;
-      font-size: 1.05rem;
+    .alert-banner.success {
+      display: flex;
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: #86efac;
     }
 
-    .alert-text-en {
-      font-weight: 500;
+    .alert-icon {
+      font-size: 1.1rem;
+      margin-right: 12px;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    .alert-text-primary {
+      font-weight: 600;
       display: block;
     }
 
-    .alert-text-bn {
-      font-size: 0.8rem;
+    .alert-text-secondary {
+      font-size: 0.78rem;
       opacity: 0.9;
       display: block;
       margin-top: 2px;
     }
 
-    /* Form Elements */
+    /* Form Fields */
     .form-group {
       margin-bottom: 20px;
-      text-align: left;
     }
 
     .form-label {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.86rem;
-      font-weight: 500;
+      font-size: 0.84rem;
+      font-weight: 600;
       color: #cbd5e1;
       margin-bottom: 8px;
     }
 
-    .form-label .label-bn {
-      font-size: 0.78rem;
-      color: var(--text-muted);
+    .label-bn {
+      font-size: 0.76rem;
+      color: var(--text-dim);
+      font-weight: 500;
     }
 
-    .input-wrapper {
+    .input-field-wrapper {
       position: relative;
       display: flex;
       align-items: center;
     }
 
-    .input-wrapper .input-icon {
+    .field-icon {
       position: absolute;
       left: 16px;
-      color: var(--text-muted);
-      font-size: 1rem;
-      transition: color 0.2s ease;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      transition: color 0.25s ease;
       pointer-events: none;
     }
 
-    .form-control {
+    .form-input {
       width: 100%;
       background: var(--input-bg);
       border: 1px solid var(--input-border);
-      border-radius: 12px;
-      padding: 13px 44px 13px 44px;
-      font-size: 0.94rem;
-      color: var(--text-main);
+      border-radius: 14px;
+      padding: 14px 44px 14px 44px;
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 500;
       outline: none;
-      transition: all 0.25s ease;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-appearance: none;
     }
 
-    .form-control::placeholder {
+    .form-input::placeholder {
       color: #475569;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
+      font-weight: 400;
     }
 
-    .form-control:focus {
-      border-color: var(--input-focus);
-      background: rgba(15, 23, 42, 0.95);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    .form-input:focus {
+      border-color: var(--primary);
+      background: rgba(12, 18, 36, 0.95);
+      box-shadow: 0 0 0 3.5px rgba(99, 102, 241, 0.22),
+                  0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
-    .form-control:focus ~ .input-icon {
-      color: var(--input-focus);
+    .form-input:focus ~ .field-icon {
+      color: var(--primary-light);
     }
 
-    .toggle-password {
+    /* Password Toggle Button */
+    .toggle-eye-btn {
       position: absolute;
-      right: 14px;
+      right: 12px;
       background: none;
       border: none;
-      color: var(--text-muted);
+      color: var(--text-dim);
       cursor: pointer;
-      padding: 6px;
+      padding: 8px;
       font-size: 0.95rem;
-      transition: color 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s ease, transform 0.15s ease;
+      border-radius: 8px;
     }
 
-    .toggle-password:hover {
-      color: var(--text-main);
+    .toggle-eye-btn:hover {
+      color: #ffffff;
     }
 
-    /* Submit Button */
-    .btn-submit {
+    .toggle-eye-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* ==========================================================================
+       5. LUXURY SUBMIT BUTTON & LOADING SPINNER
+       ========================================================================== */
+    .btn-login-submit {
       width: 100%;
-      margin-top: 10px;
-      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+      margin-top: 8px;
+      background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
       color: #ffffff;
       border: none;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 0.98rem;
-      font-weight: 600;
+      border-radius: 14px;
+      padding: 15px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px -4px rgba(79, 70, 229, 0.45),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.3);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .btn-submit:hover:not(:disabled) {
-      background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
+    .btn-login-submit::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .btn-login-submit:hover:not(:disabled)::after {
+      left: 100%;
+    }
+
+    .btn-login-submit:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 12px 24px -5px rgba(79, 70, 229, 0.55);
+      box-shadow: 0 12px 28px -4px rgba(79, 70, 229, 0.6),
+                  0 0 15px rgba(6, 182, 212, 0.3);
     }
 
-    .btn-submit:active:not(:disabled) {
-      transform: translateY(0);
+    .btn-login-submit:active:not(:disabled) {
+      transform: translateY(1px) scale(0.98);
     }
 
-    .btn-submit:disabled {
-      opacity: 0.7;
+    .btn-login-submit:disabled {
+      opacity: 0.72;
       cursor: not-allowed;
       transform: none;
     }
 
-    .spinner {
+    .loading-spinner {
       display: none;
       width: 18px;
       height: 18px;
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-top-color: #ffffff;
       border-radius: 50%;
-      animation: spin 0.75s linear infinite;
+      animation: spinLoader 0.7s linear infinite;
     }
 
-    @keyframes spin {
+    @keyframes spinLoader {
       to { transform: rotate(360deg); }
     }
 
-    .footer-note {
+    /* ==========================================================================
+       6. FOOTER SECURITY BADGE
+       ========================================================================== */
+    .footer-guard {
+      margin-top: 24px;
       text-align: center;
-      margin-top: 26px;
-      font-size: 0.78rem;
-      color: #64748b;
-      line-height: 1.5;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      padding-top: 18px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .footer-guard span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-guard i {
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+
+    /* Responsive Mobile Optimization */
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 28px 20px;
+        border-radius: 20px;
+      }
+      .dynamic-title {
+        font-size: 1.45rem;
+      }
+      .brand-emblem {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Ambient glowing spheres -->
-  <div class="glow-orb glow-orb-1"></div>
-  <div class="glow-orb glow-orb-2"></div>
+  <!-- Ambient Animated Gradient Mesh & Orbs -->
+  <div class="bg-mesh">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+  </div>
+  <div class="bg-particles"></div>
 
-  <div class="login-container">
-    <div class="brand-header">
-      <div class="brand-icon">
-        <i class="fa-solid fa-server"></i>
+  <!-- Main Mobile-Friendly Application Wrapper -->
+  <div class="app-wrapper">
+
+    <!-- Top Dynamic Title Area -->
+    <header class="header-area">
+      <div class="brand-emblem">
+        <i class="fa-solid fa-bolt"></i>
       </div>
-      <h1 class="brand-title">Hosting List Portal</h1>
-      <p class="brand-subtitle">Enter your credentials to access your servers</p>
-      <span class="bilingual-sub">আপনার সার্ভার অ্যাক্সেস করতে লগইন করুন</span>
-    </div>
-
-    <!-- Bilingual Alert Box -->
-    <div id="alertBox" class="alert-box" role="alert">
-      <div class="alert-content">
-        <i id="alertIcon" class="fa-solid fa-circle-exclamation"></i>
-        <div>
-          <span id="alertMsgEn" class="alert-text-en"></span>
-          <span id="alertMsgBn" class="alert-text-bn"></span>
-        </div>
+      <!-- Group title dynamically updated live from Firebase Realtime Database -->
+      <h1 class="dynamic-title" id="groupTitleDisplay">SS TIME OFFICIAL</h1>
+      <div class="header-sub">
+        <span>Welcome Back • Sign in to continue</span>
       </div>
-    </div>
+      <div class="bilingual-tag">স্বাগতম • আপনার একাউন্টে লগইন করুন</div>
+    </header>
 
-    <!-- Login Form -->
-    <form id="loginForm" autocomplete="off">
-      <!-- Username Field -->
-      <div class="form-group">
-        <label class="form-label" for="username">
-          <span>Username / Email</span>
-          <span class="label-bn">ইউজারনেম অথবা ইমেইল</span>
-        </label>
-        <div class="input-wrapper">
-          <input 
-            type="text" 
-            id="username" 
-            class="form-control" 
-            placeholder="e.g. hostuser or name@example.com" 
-            required 
-          />
-          <i class="fa-regular fa-user input-icon"></i>
+    <!-- Centered Glassmorphism Login Card -->
+    <main class="login-card" id="loginCard">
+      
+      <!-- Bilingual Alert Message Banner -->
+      <div id="alertBanner" class="alert-banner" role="alert">
+        <i id="alertIcon" class="alert-icon fa-solid fa-circle-exclamation"></i>
+        <div class="alert-text-group">
+          <span id="alertTextEn" class="alert-text-primary"></span>
+          <span id="alertTextBn" class="alert-text-secondary"></span>
         </div>
       </div>
 
-      <!-- Password Field -->
-      <div class="form-group">
-        <label class="form-label" for="password">
-          <span>Password</span>
-          <span class="label-bn">পাসওয়ার্ড</span>
-        </label>
-        <div class="input-wrapper">
-          <input 
-            type="password" 
-            id="password" 
-            class="form-control" 
-            placeholder="••••••••" 
-            required 
-          />
-          <i class="fa-solid fa-lock input-icon"></i>
-          <button type="button" id="togglePasswordBtn" class="toggle-password" title="Show / Hide Password">
-            <i class="fa-regular fa-eye" id="toggleIcon"></i>
-          </button>
+      <!-- Secure Login Form -->
+      <form id="authLoginForm" autocomplete="off" novalidate>
+        
+        <!-- Username Input -->
+        <div class="form-group">
+          <label class="form-label" for="userLoginInput">
+            <span>Username</span>
+            <span class="label-bn">ইউজারনেম</span>
+          </label>
+          <div class="input-field-wrapper">
+            <input 
+              type="text" 
+              id="userLoginInput" 
+              class="form-input" 
+              placeholder="Enter your username" 
+              spellcheck="false" 
+              autocapitalize="none" 
+              required 
+            />
+            <i class="fa-regular fa-user field-icon"></i>
+          </div>
         </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+          <label class="form-label" for="userPasswordInput">
+            <span>Password</span>
+            <span class="label-bn">পাসওয়ার্ড</span>
+          </label>
+          <div class="input-field-wrapper">
+            <input 
+              type="password" 
+              id="userPasswordInput" 
+              class="form-input" 
+              placeholder="Enter your password" 
+              required 
+            />
+            <i class="fa-solid fa-lock field-icon"></i>
+            <button type="button" id="passwordToggleBtn" class="toggle-eye-btn" aria-label="Toggle Password Visibility">
+              <i class="fa-regular fa-eye" id="toggleIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="btnSubmitLogin" class="btn-login-submit">
+          <div class="loading-spinner" id="btnSpinner"></div>
+          <span id="btnTextLabel">Sign In • লগইন করুন</span>
+        </button>
+
+      </form>
+
+      <!-- Footer Security Note -->
+      <div class="footer-guard">
+        <span><i class="fa-solid fa-shield-halved"></i> Authorized & Encrypted Portal</span>
+        <span>অ্যাকাউন্ট নিবন্ধন শুধুমাত্র অ্যাডমিন দ্বারা পরিচালিত হয়</span>
       </div>
 
-      <!-- Submit Button -->
-      <button type="submit" id="submitBtn" class="btn-submit">
-        <div class="spinner" id="btnSpinner"></div>
-        <span id="btnText">Log In / লগইন করুন</span>
-      </button>
-    </form>
+    </main>
 
-    <div class="footer-note">
-      <p><i class="fa-solid fa-shield-halved"></i> Authorized Access Only</p>
-      <p>নিবন্ধন শুধুমাত্র অ্যাডমিনের মাধ্যমে পরিচালিত হয়</p>
-    </div>
   </div>
 
+  <!-- ==========================================================================
+       7. CLIENT-SIDE SCRIPT & SECURE FIREBASE LOGIC
+       ========================================================================== -->
   <script>
-    // ==========================================
-    // 1. FIREBASE CONFIGURATION
-    // ==========================================
+    // --------------------------------------------------------------------------
+    // A. FIREBASE INITIALIZATION & CONFIGURATION
+    // --------------------------------------------------------------------------
     const firebaseConfig = {
       apiKey: "AIzaSyCjh-etprmOrbu7UMYNXXHdNXgiVPCxywY",
       authDomain: "alifi-1e15c.firebaseapp.com",
@@ -435,83 +660,99 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // Configure Persistent Auth State in Local Storage
+    // Enable Local State Persistence
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-    // ==========================================
-    // 2. DOM ELEMENTS
-    // ==========================================
-    const loginForm = document.getElementById('loginForm');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const submitBtn = document.getElementById('submitBtn');
-    const btnSpinner = document.getElementById('btnSpinner');
-    const btnText = document.getElementById('btnText');
-    const alertBox = document.getElementById('alertBox');
-    const alertIcon = document.getElementById('alertIcon');
-    const alertMsgEn = document.getElementById('alertMsgEn');
-    const alertMsgBn = document.getElementById('alertMsgBn');
-    const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    // --------------------------------------------------------------------------
+    // B. DOM ELEMENTS
+    // --------------------------------------------------------------------------
+    const groupTitleDisplay = document.getElementById('groupTitleDisplay');
+    const authLoginForm = document.getElementById('authLoginForm');
+    const userLoginInput = document.getElementById('userLoginInput');
+    const userPasswordInput = document.getElementById('userPasswordInput');
+    const passwordToggleBtn = document.getElementById('passwordToggleBtn');
     const toggleIcon = document.getElementById('toggleIcon');
+    const btnSubmitLogin = document.getElementById('btnSubmitLogin');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const btnTextLabel = document.getElementById('btnTextLabel');
+    const alertBanner = document.getElementById('alertBanner');
+    const alertIcon = document.getElementById('alertIcon');
+    const alertTextEn = document.getElementById('alertTextEn');
+    const alertTextBn = document.getElementById('alertTextBn');
+    const loginCard = document.getElementById('loginCard');
 
-    // ==========================================
-    // 3. UI HELPER FUNCTIONS
-    // ==========================================
-    function showAlert(type, msgEn, msgBn) {
-      alertBox.className = `alert-box ${type}`;
-      alertMsgEn.textContent = msgEn;
-      alertMsgBn.textContent = msgBn;
+    let isAuthenticating = false;
 
-      if (type === 'error') {
-        alertIcon.className = 'fa-solid fa-triangle-exclamation';
-      } else {
-        alertIcon.className = 'fa-solid fa-circle-check';
-      }
-
-      alertBox.style.display = 'block';
-    }
-
-    function hideAlert() {
-      alertBox.style.display = 'none';
-    }
-
-    function setLoading(isLoading) {
-      if (isLoading) {
-        submitBtn.disabled = true;
-        btnSpinner.style.display = 'inline-block';
-        btnText.textContent = 'Verifying... / যাচাই করা হচ্ছে...';
-      } else {
-        submitBtn.disabled = false;
-        btnSpinner.style.display = 'none';
-        btnText.textContent = 'Log In / লগইন করুন';
-      }
-    }
-
-    // Toggle Password Visibility
-    togglePasswordBtn.addEventListener('click', () => {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      if (type === 'text') {
-        toggleIcon.classList.remove('fa-eye');
-        toggleIcon.classList.add('fa-eye-slash');
-      } else {
-        toggleIcon.classList.remove('fa-eye-slash');
-        toggleIcon.classList.add('fa-eye');
+    // --------------------------------------------------------------------------
+    // C. LIVE DYNAMIC GROUP TITLE LISTENER
+    // --------------------------------------------------------------------------
+    // Listens for group title changes in RTDB /settings or /appSettings
+    db.ref('settings/groupName').on('value', (snapshot) => {
+      const liveTitle = snapshot.val();
+      if (liveTitle && typeof liveTitle === 'string' && liveTitle.trim().length > 0) {
+        groupTitleDisplay.textContent = liveTitle.trim();
+        document.title = `${liveTitle.trim()} | Secure Portal Login`;
       }
     });
 
-    // ==========================================
-    // 4. USERNAME TO EMAIL RESOLVER
-    // ==========================================
-    async function resolveEmail(userInput) {
-      const cleaned = userInput.trim();
-      
-      // If the user entered an email address format
+    // --------------------------------------------------------------------------
+    // D. UI INTERACTION HELPERS
+    // --------------------------------------------------------------------------
+    function triggerAlert(type, msgEn, msgBn) {
+      alertBanner.className = `alert-banner ${type}`;
+      alertTextEn.textContent = msgEn;
+      alertTextBn.textContent = msgBn;
+
+      if (type === 'error') {
+        alertIcon.className = 'alert-icon fa-solid fa-triangle-exclamation';
+        // Trigger subtle card shake
+        loginCard.classList.remove('shake-card');
+        void loginCard.offsetWidth; // Force reflow
+        loginCard.classList.add('shake-card');
+      } else {
+        alertIcon.className = 'alert-icon fa-solid fa-circle-check';
+      }
+
+      alertBanner.style.display = 'flex';
+    }
+
+    function clearAlert() {
+      alertBanner.style.display = 'none';
+      loginCard.classList.remove('shake-card');
+    }
+
+    function setFormLoading(loading) {
+      isAuthenticating = loading;
+      if (loading) {
+        btnSubmitLogin.disabled = true;
+        btnSpinner.style.display = 'block';
+        btnTextLabel.textContent = 'Verifying... • যাচাই করা হচ্ছে...';
+      } else {
+        btnSubmitLogin.disabled = false;
+        btnSpinner.style.display = 'none';
+        btnTextLabel.textContent = 'Sign In • লগইন করুন';
+      }
+    }
+
+    // Toggle Password Eye Visibility
+    passwordToggleBtn.addEventListener('click', () => {
+      const isPassword = userPasswordInput.getAttribute('type') === 'password';
+      userPasswordInput.setAttribute('type', isPassword ? 'text' : 'password');
+      toggleIcon.className = isPassword ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+    });
+
+    // --------------------------------------------------------------------------
+    // E. USERNAME RESOLVER (Secure Client Identifier)
+    // --------------------------------------------------------------------------
+    async function resolveUserAuthEmail(inputIdentifier) {
+      const cleaned = inputIdentifier.trim().toLowerCase();
+
+      // If user typed an email format
       if (cleaned.includes('@')) {
         return cleaned;
       }
 
-      // Check database to find if this username is mapped to an email
+      // Query database index to locate matching user record
       try {
         const snapshot = await db.ref('users')
           .orderByChild('username')
@@ -519,157 +760,144 @@
           .once('value');
 
         if (snapshot.exists()) {
-          const users = snapshot.val();
-          const firstKey = Object.keys(users)[0];
-          if (users[firstKey].email) {
-            return users[firstKey].email;
+          const matchedUsers = snapshot.val();
+          const firstKey = Object.keys(matchedUsers)[0];
+          if (matchedUsers[firstKey].email) {
+            return matchedUsers[firstKey].email;
           }
         }
       } catch (err) {
-        console.warn('Realtime Database username index lookup failed:', err);
+        console.warn('Realtime database index lookup fallback:', err);
       }
 
-      // Fallback domain standard for usernames created without explicit emails
-      return `${cleaned.toLowerCase()}@hostinglist.local`;
+      // Canonical Virtual Email Mapping generated during registration
+      return `${cleaned}@hostinglist.local`;
     }
 
-    // ==========================================
-    // 5. LOGIN PROCESS & VALIDATION
-    // ==========================================
-    loginForm.addEventListener('submit', async (e) => {
+    // --------------------------------------------------------------------------
+    // F. FORM SUBMIT & MULTI-TIER AUTHENTICATION CHECK
+    // --------------------------------------------------------------------------
+    authLoginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      hideAlert();
+      if (isAuthenticating) return;
+      clearAlert();
 
-      const usernameVal = usernameInput.value.trim();
-      const passwordVal = passwordInput.value;
+      const usernameVal = userLoginInput.value.trim();
+      const passwordVal = userPasswordInput.value;
 
-      // Validation
-      if (!usernameVal || !passwordVal) {
-        showAlert(
-          'error',
-          'Please enter both username and password.',
-          'অনুগ্রহ করে ইউজারনেম এবং পাসওয়ার্ড পূরণ করুন।'
-        );
+      // 1. Frontend Field Validation
+      if (!usernameVal && !passwordVal) {
+        triggerAlert('error', 'Please enter your username and password.', 'অনুগ্রহ করে ইউজারনেম এবং পাসওয়ার্ড প্রদান করুন।');
+        userLoginInput.focus();
+        return;
+      }
+      if (!usernameVal) {
+        triggerAlert('error', 'Username cannot be empty.', 'ইউজারনেম পূরণ করা আবশ্যক।');
+        userLoginInput.focus();
+        return;
+      }
+      if (!passwordVal) {
+        triggerAlert('error', 'Password cannot be empty.', 'পাসওয়ার্ড প্রদান করুন।');
+        userPasswordInput.focus();
         return;
       }
 
-      if (passwordVal.length < 6) {
-        showAlert(
-          'error',
-          'Password must be at least 6 characters long.',
-          'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।'
-        );
-        return;
-      }
-
-      setLoading(true);
+      setFormLoading(true);
 
       try {
-        // Resolve username to corresponding email address
-        const email = await resolveEmail(usernameVal);
+        // 2. Resolve Username to Authentication Identifier
+        const resolvedEmail = await resolveUserAuthEmail(usernameVal);
 
-        // 1. Authenticate with Firebase Authentication
-        const userCredential = await auth.signInWithEmailAndPassword(email, passwordVal);
-        const user = userCredential.user;
+        // 3. Authenticate with Firebase Authentication
+        const userCredential = await auth.signInWithEmailAndPassword(resolvedEmail, passwordVal);
+        const authUser = userCredential.user;
 
-        // 2. Fetch User Profile & Status from Realtime Database
-        const userRef = db.ref(`users/${user.uid}`);
-        const snapshot = await userRef.once('value');
+        // 4. Verify Account Status & Access from Realtime Database
+        const userRef = db.ref(`users/${authUser.uid}`);
+        const userSnap = await userRef.once('value');
 
-        if (!snapshot.exists()) {
-          // If no user record exists in RTDB, reject and sign out
+        if (!userSnap.exists()) {
+          // No user data in database -> Deny access
           await auth.signOut();
-          setLoading(false);
-          showAlert(
-            'error',
-            'Account profile not found. Please contact Administrator.',
-            'আপনার একাউন্ট তথ্য পাওয়া যায়নি। অ্যাডমিনের সাথে যোগাযোগ করুন।'
-          );
+          setFormLoading(false);
+          triggerAlert('error', 'Account profile not found. Contact administrator.', 'ব্যবহারকারীর প্রোফাইল পাওয়া যায়নি। অ্যাডমিনের সাথে যোগাযোগ করুন।');
           return;
         }
 
-        const userData = snapshot.val();
+        const userData = userSnap.val();
 
-        // 3. Verify Account Status (Must be active, not blocked/deleted)
+        // Check if user is blocked or marked inactive
         const isBlocked = userData.status === 'blocked' || 
-                          userData.status === 'deleted' || 
                           userData.status === 'inactive' || 
-                          userData.isBlocked === true || 
-                          userData.isActive === false;
+                          userData.status === 'deleted' || 
+                          userData.isBlocked === true;
 
         if (isBlocked) {
+          // Blocked account detected -> Sign out and terminate session
           await auth.signOut();
           sessionStorage.clear();
           localStorage.removeItem('hosting_user_session');
-          setLoading(false);
-          showAlert(
-            'error',
-            'Your account is inactive or blocked. Contact Administrator.',
-            'আপনার একাউন্টটি ব্লক বা নিষ্ক্রিয় রয়েছে। অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন।'
-          );
+          setFormLoading(false);
+          triggerAlert('error', 'Your account has been blocked. Access denied.', 'আপনার অ্যাকাউন্টটি স্থগিত/ব্লক করা হয়েছে। অ্যাডমিনের সাথে যোগাযোগ করুন।');
           return;
         }
 
-        // 4. Store Session Details securely in Session Storage
-        sessionStorage.setItem('hosting_user_uid', user.uid);
-        sessionStorage.setItem('hosting_user_data', JSON.stringify({
-          uid: user.uid,
+        // 5. Save Authenticated User Session
+        sessionStorage.setItem('ss_active_uid', authUser.uid);
+        sessionStorage.setItem('ss_active_user', JSON.stringify({
+          uid: authUser.uid,
           username: userData.username || usernameVal,
-          email: user.email,
-          role: userData.role || 'user',
-          status: userData.status || 'active'
+          fullName: userData.fullName || '',
+          status: 'active',
+          role: userData.role || 'user'
         }));
 
-        // 5. Success Notification & Redirect
-        showAlert(
-          'success',
-          'Login successful! Redirecting to dashboard...',
-          'সফলভাবে লগইন হয়েছে! ড্যাশবোর্ডে নিয়ে যাওয়া হচ্ছে...'
-        );
+        // 6. Success State & Smooth Redirect
+        triggerAlert('success', 'Login successful! Redirecting...', 'লগইন সফল হয়েছে! ড্যাশবোর্ডে প্রবেশ করা হচ্ছে...');
 
         setTimeout(() => {
           window.location.href = 'home.html';
-        }, 1200);
+        }, 1100);
 
       } catch (error) {
-        setLoading(false);
-        console.error("Login Error: ", error);
+        setFormLoading(false);
+        console.error("Authentication Error:", error);
 
-        let errEn = "Authentication failed. Please check your credentials.";
-        let errBn = "লগইন ব্যর্থ হয়েছে। আপনার ইউজারনেম ও পাসওয়ার্ড যাচাই করুন।";
+        let errorMsgEn = "Invalid username or password.";
+        let errorMsgBn = "ইউজারনেম অথবা পাসওয়ার্ড সঠিক নয়।";
 
         if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-          errEn = "Invalid username or password.";
-          errBn = "ইউজারনেম অথবা পাসওয়ার্ড ভুল দিয়েছেন।";
+          errorMsgEn = "Invalid username or password.";
+          errorMsgBn = "ভুল ইউজারনেম অথবা পাসওয়ার্ড দিয়েছেন।";
         } else if (error.code === 'auth/too-many-requests') {
-          errEn = "Too many failed attempts. Please try again later.";
-          errBn = "অতিরিক্ত ভুল চেষ্টার কারণে একাউন্ট সাময়িক স্থগিত। কিছুক্ষণ পর চেষ্টা করুন।";
+          errorMsgEn = "Too many failed attempts. Try again later.";
+          errorMsgBn = "অতিরিক্ত ভুল চেষ্টার কারণে একাউন্ট সাময়িক স্থগিত। কিছুক্ষণ পর চেষ্টা করুন।";
         } else if (error.code === 'auth/network-request-failed') {
-          errEn = "Network connection failed. Please check your internet.";
-          errBn = "ইন্টারনেট সংযোগ বিচ্ছিন্ন। দয়া করে নেটওয়ার্ক চেক করুন।";
+          errorMsgEn = "Network connection failed. Check your internet.";
+          errorMsgBn = "ইন্টারনেট সংযোগ ত্রুটি। আপনার নেটওয়ার্ক চেক করুন।";
         }
 
-        showAlert('error', errEn, errBn);
+        triggerAlert('error', errorMsgEn, errorMsgBn);
       }
     });
 
-    // ==========================================
-    // 6. PRE-CHECK SESSION (Auto redirect if active)
-    // ==========================================
+    // --------------------------------------------------------------------------
+    // G. PRE-CHECK SESSION REDIRECT
+    // --------------------------------------------------------------------------
+    // If user is already logged in and verified active, auto-route to home.html
     auth.onAuthStateChanged(async (user) => {
-      if (user) {
+      if (user && !isAuthenticating) {
         try {
           const snapshot = await db.ref(`users/${user.uid}`).once('value');
           if (snapshot.exists()) {
             const data = snapshot.val();
-            if (data.status === 'active' || (!data.status && !data.isBlocked)) {
-              // User is already authenticated and active
-              // Redirect directly to home.html
+            const isBlocked = data.status === 'blocked' || data.isBlocked === true;
+            if (!isBlocked) {
               window.location.href = 'home.html';
             }
           }
         } catch (e) {
-          console.error("Session verification error:", e);
+          console.warn("Session pre-check note:", e);
         }
       }
     });
