@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#060913" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Hosting Script Library | SS TIME OFFICIAL</title>
+
+  <!-- Google Fonts: Hind Siliguri (Bengali), Plus Jakarta Sans & Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+  <!-- Firebase Compat SDKs (Production) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    /* ==========================================================================
+       1. LUXURY MOBILE-FIRST DESIGN TOKENS & RESET
+       ========================================================================== */
+    :root {
+      --bg-base: #050811;
+      --card-bg: rgba(13, 19, 36, 0.72);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(20, 28, 52, 0.9);
+      --reader-bg: #090e1c;
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --accent: #06b6d4;
+      --accent-glow: rgba(6, 182, 212, 0.35);
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+      --emerald: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --input-bg: rgba(10, 15, 28, 0.82);
+      --font-main: 'Plus Jakarta Sans', 'Hind Siliguri', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: var(--font-main);
+    }
+
+    body {
+      background-color: var(--bg-base);
+      min-height: 100vh;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Auth Verification Splash Guard */
+    #authGuard {
+      position: fixed;
+      inset: 0;
+      background: #050811;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .guard-spinner {
+      width: 46px;
+      height: 46px;
+      border: 3px solid rgba(255, 255, 255, 0.08);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Ambient Glowing Orbs Background */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.65;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3), transparent 70%);
+      top: -40px;
+      left: 15%;
+    }
+
+    .orb-2 {
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.22), transparent 70%);
+      bottom: 5%;
+      right: 10%;
+    }
+
+    /* ==========================================================================
+       2. TOP APP BAR & NAVIGATION
+       ========================================================================== */
+    .top-appbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8, 12, 24, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+      padding: max(12px, env(safe-area-inset-top)) 18px 12px 18px;
+    }
+
+    .appbar-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .left-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-back-home {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-back-home:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      transform: translateX(-2px);
+    }
+
+    .btn-back-home:active {
+      transform: scale(0.94);
+    }
+
+    .brand-meta h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #ffffff 30%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
+
+    .brand-meta span {
+      font-size: 0.74rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .header-badge-count {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      color: #a5b4fc;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ==========================================================================
+       3. MAIN CONTAINER & CONTROLS (SEARCH & CATEGORY CHIPS)
+       ========================================================================== */
+    .content-wrapper {
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 18px 16px 60px 16px;
+      flex: 1;
+      position: relative;
+      z-index: 10;
+      animation: entrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes entrance {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Search Box */
+    .search-panel {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .search-panel i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px 40px 12px 44px;
+      color: #ffffff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.25s;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: none;
+    }
+
+    /* Strict 4 Categories Filter Chips (Mobile-Scrollable) */
+    .category-scroll-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 20px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category-scroll-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cat-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cat-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    .cat-chip.active {
+      background: linear-gradient(135deg, var(--primary), #3b82f6);
+      border-color: transparent;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    /* ==========================================================================
+       4. COMPACT HOSTING CARDS GRID
+       ========================================================================== */
+    .hosting-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 16px;
+    }
+
+    .hosting-compact-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 18px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInCard 0.35s ease-out;
+    }
+
+    @keyframes fadeInCard {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hosting-compact-card:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+      background: var(--card-hover);
+      transform: translateY(-2px);
+    }
+
+    .card-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .serial-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: 'Fira Code', monospace;
+      color: var(--accent);
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .cat-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .cat-ss-time     { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .cat-birthday    { background: rgba(244, 63, 94, 0.15);  color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.3); }
+    .cat-event       { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .cat-anniversary { background: rgba(245, 158, 11, 0.15); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    .card-hosting-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 6px;
+      line-height: 1.35;
+    }
+
+    .presenter-line {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .presenter-line strong {
+      color: #e2e8f0;
+    }
+
+    .version-meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 2px 7px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .short-preview-snippet {
+      font-size: 0.84rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+      background: rgba(10, 15, 29, 0.6);
+      border-left: 2.5px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+      padding: 8px 10px;
+    }
+
+    .card-bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .btn-read-hosting {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), #3b82f6);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-read-hosting:hover {
+      background: linear-gradient(135deg, var(--primary-hover), #2563eb);
+    }
+
+    .btn-read-hosting:active {
+      transform: scale(0.97);
+    }
+
+    /* Empty State */
+    .empty-placeholder {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--card-bg);
+      border: 1px dashed var(--card-border);
+      border-radius: 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-placeholder i {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       5. FULL MOBILE READING VIEW (FULLSCREEN DRAWER)
+       ========================================================================== */
+    .reader-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 1000;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .reader-modal-sheet {
+      background: var(--reader-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px 24px 0 0;
+      width: 100%;
+      max-width: 900px;
+      height: 94vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.8);
+      animation: sheetUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      overflow: hidden;
+    }
+
+    @keyframes sheetUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    /* Reader Sticky Top Bar */
+    .reader-header {
+      background: rgba(13, 19, 36, 0.95);
+      border-bottom: 1px solid var(--card-border);
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .reader-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .btn-close-reader {
+      width: 38px;
+      height: 38px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-close-reader:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+
+    .reader-title-box h3 {
+      font-size: 1rem;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+    }
+
+    .reader-title-box span {
+      font-size: 0.72rem;
+      color: var(--accent);
+      display: block;
+    }
+
+    /* Version Selector Bar inside Reader */
+    .version-navigator-bar {
+      background: rgba(10, 15, 28, 0.85);
+      border-bottom: 1px solid var(--card-border);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+
+    .version-navigator-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .version-tab-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      font-family: 'Fira Code', monospace;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .version-tab-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Reader Main Scrollable Script Body */
+    .reader-content-body {
+      padding: 22px 20px;
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .script-meta-summary {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      font-size: 0.78rem;
+    }
+
+    .summary-item strong {
+      display: block;
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .summary-item span {
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    .formatted-script-text {
+      font-size: 0.98rem;
+      line-height: 1.85;
+      color: #f1f5f9;
+      white-space: pre-wrap;
+      word-break: break-word;
+      letter-spacing: 0.2px;
+      padding-bottom: 20px;
+    }
+
+    /* Reader Fixed Action Bar */
+    .reader-footer-actions {
+      background: rgba(13, 19, 36, 0.95);
+      border-top: 1px solid var(--card-border);
+      padding: 14px 18px;
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn-copy-main {
+      background: linear-gradient(135deg, var(--accent), #0284c7);
+      color: #ffffff;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex: 2;
+      box-shadow: 0 4px 16px var(--accent-glow);
+      transition: all 0.2s;
+    }
+
+    .btn-copy-main:hover {
+      background: linear-gradient(135deg, #0891b2, #0369a1);
+    }
+
+    .btn-copy-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: #cbd5e1;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    /* ==========================================================================
+       6. TOAST NOTIFICATION
+       ========================================================================== */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 20px;
+      background: #1e1b4b;
+      border: 1px solid #6366f1;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      z-index: 2000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast-msg i {
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 480px) {
+      .reader-modal-sheet { height: 97vh; border-radius: 20px 20px 0 0; }
+      .reader-footer-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Auth Gate Shield -->
+  <div id="authGuard">
+    <div class="guard-spinner"></div>
+    <p style="color: #94a3b8; font-size: 0.88rem;">Connecting Library... • হোস্টিং লোড হচ্ছে...</p>
+  </div>
+
+  <!-- Ambient Glowing Mesh -->
+  <div class="bg-mesh">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+  </div>
+
+  <!-- Top App Navigation Bar -->
+  <header class="top-appbar">
+    <div class="appbar-inner">
+      <div class="left-controls">
+        <a href="home.html" class="btn-back-home" title="Back to Home">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div class="brand-meta">
+          <!-- Dynamic Website/Group Name loaded live from Firebase -->
+          <h1 id="groupTitle">SS TIME OFFICIAL</h1>
+          <span>Hosting Library • হোস্টিং লাইব্রেরি</span>
+        </div>
+      </div>
+
+      <div class="header-badge-count">
+        <i class="fa-solid fa-scroll"></i>
+        <span id="totalHostingsCount">0 Total</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="content-wrapper">
+
+    <!-- Search Input -->
+    <div class="search-panel">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input 
+        type="text" 
+        id="hostingSearchInput" 
+        class="search-input" 
+        placeholder="Search title, presenter (e.g. Mariya), serial #1... / অনুসন্ধান..." 
+      />
+      <button id="clearSearchBtn" class="search-clear-btn">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Strictly 4 Supported Categories -->
+    <div class="category-scroll-bar" id="categoryFilterBar">
+      <button class="cat-chip active" data-category="all">
+        <i class="fa-solid fa-border-all"></i> All / সব
+      </button>
+      <button class="cat-chip" data-category="SS Time">
+        🎤 SS Time
+      </button>
+      <button class="cat-chip" data-category="Birthday">
+        🎂 Birthday
+      </button>
+      <button class="cat-chip" data-category="Event">
+        🎉 Event
+      </button>
+      <button class="cat-chip" data-category="Anniversary">
+        💍 Anniversary
+      </button>
+    </div>
+
+    <!-- Compact Cards Grid -->
+    <section class="hosting-grid" id="hostingGridContainer">
+      <!-- Dynamic Hosting Cards Rendered Here -->
+    </section>
+
+  </main>
+
+  <!-- Full Mobile Reading View (Drawer Modal) -->
+  <div id="readerModal" class="reader-modal-overlay">
+    <div class="reader-modal-sheet">
+      
+      <!-- Sticky Reader Header -->
+      <div class="reader-header">
+        <div class="reader-header-left">
+          <button class="btn-close-reader" id="btnCloseReader" title="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <div class="reader-title-box">
+            <h3 id="readerHostingTitle">Hosting Title</h3>
+            <span id="readerCategoryPresenter">Category • Presenter</span>
+          </div>
+        </div>
+        <span class="serial-badge" id="readerSerialBadge">#1</span>
+      </div>
+
+      <!-- Version Navigator Tabs (Allows switching versions without database mutation) -->
+      <div class="version-navigator-bar" id="readerVersionBar">
+        <!-- Dynamic Version Chips -->
+      </div>
+
+      <!-- Scrollable Script Text -->
+      <div class="reader-content-body">
+        
+        <div class="script-meta-summary">
+          <div class="summary-item">
+            <strong>Category:</strong>
+            <span id="readerSummaryCat">SS Time</span>
+          </div>
+          <div class="summary-item">
+            <strong>Presenter:</strong>
+            <span id="readerSummaryPresenter">Mariya</span>
+          </div>
+          <div class="summary-item">
+            <strong>Version:</strong>
+            <span id="readerSummaryVersion" style="color: #6ee7b7;">Latest</span>
+          </div>
+          <div class="summary-item">
+            <strong>Updated:</strong>
+            <span id="readerSummaryDate">Today</span>
+          </div>
+        </div>
+
+        <div class="formatted-script-text" id="readerScriptBody">
+          <!-- Full long hosting text with preserved line breaks and paragraphs -->
+        </div>
+
+      </div>
+
+      <!-- Sticky Action Bottom Bar -->
+      <div class="reader-footer-actions">
+        <button class="btn-copy-main" id="btnCopyFullHosting">
+          <i class="fa-regular fa-clipboard"></i> Copy Full Hosting / সম্পূর্ণ কপি
+        </button>
+        <button class="btn-copy-secondary" id="btnCopyTitleAndHosting">
+          <i class="fa-solid fa-copy"></i> Title + Script
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-msg">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toastText">Hosting copied successfully ✓ • সম্পূর্ণ Hosting কপি হয়েছে ✓</span>
+  </div>
+
+  <!-- ==========================================================================
+       6. JAVASCRIPT: REALTIME LOGIC & VERSION CONTROLLER
+       ========================================================================== -->
+  <script>
+    // --------------------------------------------------------------------------
+    // A. FIREBASE CONFIGURATION
+    // --------------------------------------------------------------------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyCjh-etprmOrbu7UMYNXXHdNXgiVPCxywY",
+      authDomain: "alifi-1e15c.firebaseapp.com",
+      databaseURL: "https://alifi-1e15c-default-rtdb.firebaseio.com",
+      projectId: "alifi-1e15c",
+      storageBucket: "alifi-1e15c.firebasestorage.app",
+      messagingSenderId: "928673744418",
+      appId: "1:928673744418:web:997a8db27cae1fa15c6c7b"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // DOM Elements
+    const authGuard = document.getElementById('authGuard');
+    const groupTitle = document.getElementById('groupTitle');
+    const totalHostingsCount = document.getElementById('totalHostingsCount');
+    const hostingSearchInput = document.getElementById('hostingSearchInput');
+    const clearSearchBtn = document.getElementById('clearSearchBtn');
+    const categoryFilterBar = document.getElementById('categoryFilterBar');
+    const hostingGridContainer = document.getElementById('hostingGridContainer');
+
+    // Reader Modal Elements
+    const readerModal = document.getElementById('readerModal');
+    const btnCloseReader = document.getElementById('btnCloseReader');
+    const readerHostingTitle = document.getElementById('readerHostingTitle');
+    const readerCategoryPresenter = document.getElementById('readerCategoryPresenter');
+    const readerSerialBadge = document.getElementById('readerSerialBadge');
+    const readerVersionBar = document.getElementById('readerVersionBar');
+    const readerSummaryCat = document.getElementById('readerSummaryCat');
+    const readerSummaryPresenter = document.getElementById('readerSummaryPresenter');
+    const readerSummaryVersion = document.getElementById('readerSummaryVersion');
+    const readerSummaryDate = document.getElementById('readerSummaryDate');
+    const readerScriptBody = document.getElementById('readerScriptBody');
+    const btnCopyFullHosting = document.getElementById('btnCopyFullHosting');
+    const btnCopyTitleAndHosting = document.getElementById('btnCopyTitleAndHosting');
+
+    // Toast
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+
+    // State Variables
+    let rawHostingData = [];
+    let groupedHostings = [];
+    let currentFilterCategory = 'all';
+    let currentSearchTerm = '';
+    let currentReadingGroup = null;
+    let activeVersionIndex = 0;
+
+    // --------------------------------------------------------------------------
+    // B. AUTHENTICATION PROTECTION
+    // --------------------------------------------------------------------------
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      try {
+        const userSnap = await db.ref(`users/${user.uid}`).once('value');
+        if (!userSnap.exists()) {
+          await auth.signOut();
+          window.location.href = 'index.html';
+          return;
+        }
+
+        const userData = userSnap.val();
+        if (userData.status === 'blocked' || userData.isBlocked === true) {
+          await auth.signOut();
+          window.location.href = 'index.html';
+          return;
+        }
+
+        authGuard.style.display = 'none';
+        initRealtimeSync();
+
+      } catch (err) {
+        console.error("Auth guard error:", err);
+        authGuard.style.display = 'none';
+      }
+    });
+
+    // --------------------------------------------------------------------------
+    // C. REALTIME FIREBASE DATABASE SYNC
+    // --------------------------------------------------------------------------
+    function initRealtimeSync() {
+      // 1. Dynamic Group Title
+      db.ref('settings/groupName').on('value', (snap) => {
+        const titleVal = snap.val();
+        if (titleVal && typeof titleVal === 'string' && titleVal.trim().length > 0) {
+          groupTitle.textContent = titleVal.trim();
+          document.title = `${titleVal.trim()} | Hosting Library`;
+        }
+      });
+
+      // 2. Sync Hosting Content Nodes (from contents and hostings)
+      db.ref('contents').on('value', (snapContents) => {
+        const contentsObj = snapContents.val() || {};
+
+        db.ref('hostings').on('value', (snapHostings) => {
+          const hostingsObj = snapHostings.val() || {};
+          
+          processAndGroupData({ ...contentsObj, ...hostingsObj });
+          renderHostingList();
+        });
+      });
+    }
+
+    // --------------------------------------------------------------------------
+    // D. STRICT 4 CATEGORIES & MULTI-VERSION GROUPING ENGINE
+    // --------------------------------------------------------------------------
+    function normalizeCategory(rawCat) {
+      if (!rawCat) return 'SS Time';
+      const c = rawCat.toString().toLowerCase();
+      if (c.includes('birthday')) return 'Birthday';
+      if (c.includes('anniversary')) return 'Anniversary';
+      if (c.includes('event')) return 'Event';
+      return 'SS Time';
+    }
+
+    function processAndGroupData(mergedObj) {
+      rawHostingData = [];
+
+      Object.keys(mergedObj).forEach(key => {
+        const item = mergedObj[key];
+        if (!item || typeof item !== 'object') return;
+
+        // Skip unpublished or deleted entries
+        const isHidden = item.status === 'unpublished' || item.status === 'deleted' || item.isPublished === false;
+        if (isHidden) return;
+
+        // Ensure item belongs to hosting scripts
+        const scriptBody = item.content || item.details || item.hostingText || '';
+        if (!scriptBody.trim()) return;
+
+        const cat = normalizeCategory(item.category || item.type);
+        const title = item.title || item.name || 'Untitled Hosting Script';
+
+        rawHostingData.push({
+          id: key,
+          title: title.trim(),
+          category: cat,
+          presenter: item.presenter || item.username || '',
+          content: scriptBody,
+          versionLabel: item.version || item.ver || 'v1.0',
+          versionNumber: parseVersionNumber(item.version || item.ver),
+          timestamp: item.updatedAt || item.createdAt || Date.now()
+        });
+      });
+
+      // Group versions belonging to the same Hosting (by title + category)
+      const groupsMap = {};
+
+      rawHostingData.forEach(item => {
+        const groupKey = `${item.category}__${item.title.toLowerCase()}`;
+        if (!groupsMap[groupKey]) {
+          groupsMap[groupKey] = {
+            groupKey: groupKey,
+            title: item.title,
+            category: item.category,
+            presenter: item.presenter,
+            earliestTime: item.timestamp,
+            latestTime: item.timestamp,
+            versions: []
+          };
+        }
+
+        if (item.presenter && !groupsMap[groupKey].presenter) {
+          groupsMap[groupKey].presenter = item.presenter;
+        }
+
+        if (item.timestamp < groupsMap[groupKey].earliestTime) {
+          groupsMap[groupKey].earliestTime = item.timestamp;
+        }
+        if (item.timestamp > groupsMap[groupKey].latestTime) {
+          groupsMap[groupKey].latestTime = item.timestamp;
+        }
+
+        groupsMap[groupKey].versions.push(item);
+      });
+
+      // Convert to array and assign Automatic Sequential Serial Numbers (#1, #2, #3...)
+      groupedHostings = Object.values(groupsMap).sort((a, b) => a.earliestTime - b.earliestTime);
+
+      groupedHostings.forEach((group, index) => {
+        group.autoSerial = index + 1; // Automatic sequential serial #1, #2, #3
+
+        // Sort versions so newest/latest version is always index 0
+        group.versions.sort((a, b) => {
+          if (b.versionNumber !== a.versionNumber) {
+            return b.versionNumber - a.versionNumber;
+          }
+          return b.timestamp - a.timestamp;
+        });
+
+        // Set latest version pointer
+        group.latestVersion = group.versions[0];
+      });
+
+      totalHostingsCount.textContent = `${groupedHostings.length} Total`;
+    }
+
+    function parseVersionNumber(verStr) {
+      if (!verStr) return 1;
+      const match = verStr.toString().match(/\d+(\.\d+)?/);
+      return match ? parseFloat(match[0]) : 1;
+    }
+
+    // --------------------------------------------------------------------------
+    // E. RENDER COMPACT HOSTING CARDS
+    // --------------------------------------------------------------------------
+    function renderHostingList() {
+      const q = currentSearchTerm.toLowerCase().trim();
+
+      const filtered = groupedHostings.filter(group => {
+        // Category Filter
+        if (currentFilterCategory !== 'all' && group.category !== currentFilterCategory) {
+          return false;
+        }
+
+        // Search Filter (Title, Presenter, Serial #, Script text)
+        if (q) {
+          const serialMatch = `#${group.autoSerial}`.includes(q) || group.autoSerial.toString() === q;
+          const titleMatch = group.title.toLowerCase().includes(q);
+          const presenterMatch = group.presenter.toLowerCase().includes(q);
+          const textMatch = group.versions.some(v => v.content.toLowerCase().includes(q));
+
+          if (!serialMatch && !titleMatch && !presenterMatch && !textMatch) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        hostingGridContainer.innerHTML = `
+          <div class="empty-placeholder">
+            <i class="fa-solid fa-microphone-slash"></i>
+            <p>কোনো Hosting পাওয়া যায়নি • No Hosting found</p>
+          </div>
+        `;
+        return;
+      }
+
+      hostingGridContainer.innerHTML = filtered.map(group => {
+        const latest = group.latestVersion;
+        const formattedDate = new Date(group.latestTime).toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        });
+
+        const catClass = getCategoryClass(group.category);
+
+        return `
+          <div class="hosting-compact-card">
+            <div>
+              <div class="card-top-row">
+                <span class="serial-badge">#${group.autoSerial}</span>
+                <span class="cat-tag ${catClass}">${getCategoryIcon(group.category)} ${escapeHTML(group.category)}</span>
+              </div>
+
+              <h4 class="card-hosting-title">${escapeHTML(group.title)}</h4>
+
+              ${group.presenter ? `
+                <div class="presenter-line">
+                  <i class="fa-solid fa-user-tie" style="color: var(--accent);"></i>
+                  <span>Presenter: <strong>${escapeHTML(group.presenter)}</strong></span>
+                </div>
+              ` : ''}
+
+              <div class="version-meta-pill">
+                <i class="fa-solid fa-bolt"></i> Latest Version (${escapeHTML(latest.versionLabel)})
+                ${group.versions.length > 1 ? `<span style="color:#94a3b8; margin-left:4px;">(+${group.versions.length - 1} old)</span>` : ''}
+              </div>
+
+              <div class="short-preview-snippet">
+                ${escapeHTML(latest.content)}
+              </div>
+
+              <div class="card-bottom-row">
+                <span><i class="fa-regular fa-clock"></i> ${formattedDate}</span>
+                <span>${group.versions.length} Version${group.versions.length > 1 ? 's' : ''} available</span>
+              </div>
+            </div>
+
+            <button class="btn-read-hosting" onclick="openReaderView('${group.groupKey}')">
+              <i class="fa-solid fa-book-open"></i> Read Hosting / স্ক্রিপ্ট পড়ুন
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getCategoryClass(cat) {
+      switch(cat) {
+        case 'Birthday': return 'cat-birthday';
+        case 'Event': return 'cat-event';
+        case 'Anniversary': return 'cat-anniversary';
+        default: return 'cat-ss-time';
+      }
+    }
+
+    function getCategoryIcon(cat) {
+      switch(cat) {
+        case 'Birthday': return '🎂';
+        case 'Event': return '🎉';
+        case 'Anniversary': return '💍';
+        default: return '🎤';
+      }
+    }
+
+    // --------------------------------------------------------------------------
+    // F. FULL MOBILE READING VIEW & IN-READER VERSION SWITCHER
+    // --------------------------------------------------------------------------
+    window.openReaderView = function(groupKey) {
+      const group = groupedHostings.find(g => g.groupKey === groupKey);
+      if (!group) return;
+
+      currentReadingGroup = group;
+      activeVersionIndex = 0; // Default to Latest Version
+
+      readerHostingTitle.textContent = group.title;
+      readerCategoryPresenter.textContent = `${group.category} ${group.presenter ? '• Presenter: ' + group.presenter : ''}`;
+      readerSerialBadge.textContent = `#${group.autoSerial}`;
+
+      renderReaderVersionTabs();
+      renderActiveScriptContent();
+
+      readerModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Lock background scroll
+    };
+
+    function renderReaderVersionTabs() {
+      if (!currentReadingGroup) return;
+
+      readerVersionBar.innerHTML = currentReadingGroup.versions.map((ver, idx) => {
+        const isLatest = idx === 0;
+        const label = isLatest ? `Latest (${ver.versionLabel})` : `Version ${ver.versionLabel}`;
+        return `
+          <button class="version-tab-btn ${idx === activeVersionIndex ? 'active' : ''}" onclick="switchReaderVersion(${idx})">
+            ${isLatest ? '<i class="fa-solid fa-sparkles"></i> ' : ''}${escapeHTML(label)}
+          </button>
+        `;
+      }).join('');
+    }
+
+    window.switchReaderVersion = function(index) {
+      activeVersionIndex = index;
+      renderReaderVersionTabs();
+      renderActiveScriptContent();
+    };
+
+    function renderActiveScriptContent() {
+      if (!currentReadingGroup) return;
+      const currentVer = currentReadingGroup.versions[activeVersionIndex];
+      const isLatest = activeVersionIndex === 0;
+
+      readerSummaryCat.textContent = currentReadingGroup.category;
+      readerSummaryPresenter.textContent = currentReadingGroup.presenter || 'Not specified';
+      readerSummaryVersion.textContent = isLatest ? `Latest (${currentVer.versionLabel})` : `Old Version (${currentVer.versionLabel})`;
+      readerSummaryDate.textContent = new Date(currentVer.timestamp).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+
+      // Display long script with preserved paragraphs, line breaks, emojis
+      readerScriptBody.textContent = currentVer.content;
+    }
+
+    // Close Reader
+    btnCloseReader.addEventListener('click', () => {
+      readerModal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+      currentReadingGroup = null;
+    });
+
+    // Close when tapping outside sheet
+    readerModal.addEventListener('click', (e) => {
+      if (e.target === readerModal) {
+        readerModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        currentReadingGroup = null;
+      }
+    });
+
+    // --------------------------------------------------------------------------
+    // G. COPY SYSTEM & CLIPBOARD
+    // --------------------------------------------------------------------------
+    btnCopyFullHosting.addEventListener('click', () => {
+      if (!currentReadingGroup) return;
+      const currentVer = currentReadingGroup.versions[activeVersionIndex];
+      copyTextToClipboard(currentVer.content, 'Hosting copied successfully ✓ • সম্পূর্ণ Hosting কপি হয়েছে ✓');
+    });
+
+    btnCopyTitleAndHosting.addEventListener('click', () => {
+      if (!currentReadingGroup) return;
+      const currentVer = currentReadingGroup.versions[activeVersionIndex];
+      const combined = 
+`Hosting Title: ${currentReadingGroup.title}
+Category: ${currentReadingGroup.category}
+Presenter: ${currentReadingGroup.presenter || 'N/A'}
+Version: ${currentVer.versionLabel}
+
+${currentVer.content}`;
+
+      copyTextToClipboard(combined, 'Title & Script copied! • শিরোনাম ও স্ক্রিপ্ট কপি হয়েছে ✓');
+    });
+
+    function copyTextToClipboard(text, successMessage) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(successMessage);
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast(successMessage);
+      });
+    }
+
+    function showToast(msg) {
+      toastText.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // --------------------------------------------------------------------------
+    // H. SEARCH & CATEGORY FILTER EVENTS
+    // --------------------------------------------------------------------------
+    categoryFilterBar.addEventListener('click', (e) => {
+      const chip = e.target.closest('.cat-chip');
+      if (!chip) return;
+
+      document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      currentFilterCategory = chip.getAttribute('data-category');
+      renderHostingList();
+    });
+
+    hostingSearchInput.addEventListener('input', (e) => {
+      currentSearchTerm = e.target.value;
+      clearSearchBtn.style.display = currentSearchTerm ? 'block' : 'none';
+      renderHostingList();
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+      hostingSearchInput.value = '';
+      currentSearchTerm = '';
+      clearSearchBtn.style.display = 'none';
+      renderHostingList();
+      hostingSearchInput.focus();
+    });
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
